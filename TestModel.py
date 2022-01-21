@@ -1,7 +1,5 @@
-from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 import mediapipe as mp
 # from tensorflow.keras.models import load_model
 from timeit import default_timer as timer
