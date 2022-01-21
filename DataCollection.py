@@ -140,7 +140,6 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
 
     cap.release()
     cv2.destroyAllWindows()
-##1:24:07 figure out way
 
 cap.release()
 cv2.destroyAllWindows()
