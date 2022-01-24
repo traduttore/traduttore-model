@@ -100,7 +100,7 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 # Set mediapipe model 
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
     while cap.isOpened():
@@ -155,6 +155,15 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
         output_sentence = (' '.join(sentence)).replace('-', ' ')
         print(output_sentence)
+        try:
+            y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
+            y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
+            if (y_coordinate_right_hand or y_coordinate_left_hand) \
+                and not (0.15 < y_coordinate_left_hand < 0.9) \
+                and not (0.15 < y_coordinate_right_hand < 0.9):
+                output_sentence = "Please make sure the hand is within frame."
+        except:
+            pass
         cv2.putText(image, output_sentence, (3,30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         
