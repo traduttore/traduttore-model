@@ -86,7 +86,7 @@ sequence = []
 sentence = []
 threshold = 0.975
 start = None
-actions = np.array(['hello', '-', 'thank-you', 'yes', 'no'])
+actions = np.array(['hello', '-', 'thank-you', 'yes', 'no', 'tea', 'coffee', 'small', 'medium', 'large'])
 colors = [(245, 117, 16)]*(actions.size)
 
 # model = load_model('action')
@@ -125,6 +125,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         sequence = sequence[-30:]
         
         if len(sequence) == 30:
+            print(np.expand_dims(sequence, axis=0))
             res = model_predict(np.expand_dims(sequence, axis=0))[0]
             # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
             
