@@ -84,10 +84,10 @@ def prob_viz(res, actions, input_frame, colors):
 # 1. New detection variables
 sequence = []
 sentence = []
-threshold = 0.7
+threshold = 0.975
 start = None
 actions = np.array(['hello','no', '-', 'thank-you', 'yes'])
-colors = [(245, 117, 16)]*5
+colors = [(245, 117, 16)]*(actions.size)
 
 # model = load_model('action')
 interpreter = tflite.Interpreter(model_path='model.tflite')
