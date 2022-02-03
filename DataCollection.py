@@ -11,7 +11,7 @@ mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 # Constants
 WEBCAM_ID = 1
-TARGET_WORD = 'yes'
+TARGET_WORD = 'medium'
 STARTING_INDEX = 30
 
 ## Alex - 0
