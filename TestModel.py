@@ -84,7 +84,7 @@ def prob_viz(res, actions, input_frame, colors):
 # 1. New detection variables
 sequence = []
 sentence = []
-threshold = 0.9
+threshold = 0.7
 start = None
 actions = np.array(['hello','no', '-', 'thank-you', 'yes'])
 colors = [(245, 117, 16)]*5
@@ -145,6 +145,9 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                     if len(sentence) > 0:
                         if actions[np.argmax(res)] != sentence[-1]:
                             sentence.append(actions[np.argmax(res)])
+                        buffer_time = timer()
+                        while buffer_time<2:
+                            pass
                     else:
                         sentence.append(actions[np.argmax(res)])
 
