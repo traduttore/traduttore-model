@@ -84,9 +84,10 @@ def prob_viz(res, actions, input_frame, colors):
 # 1. New detection variables
 sequence = []
 sentence = []
-threshold = 0.975
+threshold = 0.9
 start = None
-actions = np.array(['hello', '-', 'thank-you', 'yes', 'no', 'tea', 'coffee', 'small', 'medium', 'large'])
+actions = np.array(['hello', 'no', '-', 'thank-you', 'yes',
+                   'small', 'medium', 'large', 'tea', 'coffee'])
 colors = [(245, 117, 16)]*(actions.size)
 
 # model = load_model('action')
@@ -102,7 +103,7 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 # Set mediapipe model 
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
     while cap.isOpened():
@@ -125,7 +126,6 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         sequence = sequence[-30:]
         
         if len(sequence) == 30:
-            print(np.expand_dims(sequence, axis=0))
             res = model_predict(np.expand_dims(sequence, axis=0))[0]
             # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
             

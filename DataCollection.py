@@ -14,6 +14,9 @@ WEBCAM_ID = 0
 TARGET_WORD = 'tea'
 STARTING_INDEX = 0
 
+'''
+tea, no , yes need to be retrained
+'''
 ## Alex - 0
 ## Danial - 30
 ## Cam - 60
