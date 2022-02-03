@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 DATA_PATH = os.path.join('MP_Data')
 
 # Actions that we try to detect
-actions = np.array(['hello', 'no', '-', 'thank-you', 'yes'])
+actions = np.array(['hello', 'no', '-', 'thank-you', 'yes', 'small', 'medium', 'large', 'tea', 'coffee'])
 
 # Thirty videos worth of data
 no_sequences = 90

@@ -86,7 +86,7 @@ sequence = []
 sentence = []
 threshold = 0.975
 start = None
-actions = np.array(['hello','no', '-', 'thank-you', 'yes'])
+actions = np.array(['hello', '-', 'thank-you', 'yes', 'no'])
 colors = [(245, 117, 16)]*(actions.size)
 
 # model = load_model('action')
@@ -102,7 +102,7 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 # Set mediapipe model 
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
     while cap.isOpened():
@@ -129,6 +129,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
             # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
             
         # 3. Viz logic
+            print(res[np.argmax(res)])
             if res[np.argmax(res)] > threshold: 
                 if actions[np.argmax(res)] == '-':
                     if start:
