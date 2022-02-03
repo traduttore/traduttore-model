@@ -12,7 +12,7 @@ mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 # Constants
 WEBCAM_ID = 1
 TARGET_WORD = 'medium'
-STARTING_INDEX = 30
+STARTING_INDEX = 0
 
 ## Alex - 0
 ## Danial - 30
