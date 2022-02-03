@@ -6,6 +6,7 @@ from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
 # import pyttsx3
 import time
+from gestures import actions
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
@@ -86,8 +87,6 @@ sequence = []
 sentence = []
 threshold = 0.9
 start = None
-actions = np.array(['hello', 'no', '-', 'thank-you', 'yes',
-                   'small', 'medium', 'large', 'tea', 'coffee'])
 colors = [(245, 117, 16)]*(actions.size)
 
 # model = load_model('action')

@@ -9,12 +9,10 @@ import tensorflow as tf
 import numpy as np
 import os
 from matplotlib import pyplot as plt
+from gestures import actions
 
 # Path for exported data, numpy arrays
 DATA_PATH = os.path.join('MP_Data')
-
-# Actions that we try to detect
-actions = np.array(['hello', 'no', '-', 'thank-you', 'yes', 'small', 'medium', 'large', 'tea', 'coffee'])
 
 # Thirty videos worth of data
 no_sequences = 90
