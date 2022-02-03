@@ -14,10 +14,10 @@ from matplotlib import pyplot as plt
 DATA_PATH = os.path.join('MP_Data')
 
 # Actions that we try to detect
-actions = np.array(['hello', 'no', '-', 'thank-you'])
+actions = np.array(['hello', 'no', '-', 'thank-you', 'yes'])
 
 # Thirty videos worth of data
-no_sequences = 30
+no_sequences = 90
 
 # Videos are going to be 30 frames in lengh
 sequence_length = 30
@@ -37,7 +37,7 @@ for action in actions:
 
 X = np.array(sequences)
 y = to_categorical(labels).astype(int)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)
 
 model = Sequential()
 model.add(LSTM(64, return_sequences=True,

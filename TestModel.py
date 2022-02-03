@@ -73,7 +73,6 @@ def extract_keypoints(results):
     return np.concatenate([pose, lh, rh])
 
 
-colors = [(245,117,16), (117,245,16), (16,117,245), (200,117,245)]
 def prob_viz(res, actions, input_frame, colors):
     output_frame = input_frame.copy()
     for num, prob in enumerate(res):
@@ -87,7 +86,8 @@ sequence = []
 sentence = []
 threshold = 0.9
 start = None
-actions = np.array(['hello','no', '-', 'thank-you'])
+actions = np.array(['hello','no', '-', 'thank-you', 'yes'])
+colors = [(245, 117, 16)]*5
 
 # model = load_model('action')
 interpreter = tflite.Interpreter(model_path='model.tflite')
