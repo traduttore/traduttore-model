@@ -4,6 +4,8 @@ import mediapipe as mp
 # from tensorflow.keras.models import load_model
 from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
+# import pyttsx3
+import time
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
@@ -166,7 +168,10 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
             pass
         cv2.putText(image, output_sentence, (3,30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        
+        # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
+        #     engine = pyttsx3.init()
+        #     engine.say(output_sentence)
+        #     engine.runAndWait()
         # Show to screen
         cv2.imshow('OpenCV Feed', image)
 
