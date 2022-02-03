@@ -9,6 +9,15 @@ import mediapipe as mp
 mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
+# Constants
+WEBCAM_ID = 0
+TARGET_WORD = '-'
+STARTING_INDEX = 30
+
+## Alex - 0
+## Danial - 30
+## Cam - 60
+
 def mediapipe_detection(image, model):
     # COLOR CONVERSION BGR 2 RGB
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -75,10 +84,10 @@ def extract_keypoints(results):
 DATA_PATH = os.path.join('MP_Data')
 
 # Actions that we try to detect
-actions = np.array(['-'])
+actions = np.array([TARGET_WORD])
 
 # Thirty videos worth of data
-videos_collected = 30
+videos_collected = STARTING_INDEX
 no_sequences = 30
 
 # Videos are going to be 30 frames in lengh
@@ -94,7 +103,7 @@ for action in actions:
 
 #Keypoints for training and testing
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(WEBCAM_ID)
 # Set mediapipe model
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
 

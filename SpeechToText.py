@@ -11,9 +11,9 @@ for i in range(5):
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
     try:
-        response = recognizer.recognize_google(audio)
+        response = recognizer.recognize_google(audio)    
+        print(response)
     except:
         print("I didn't catch that")
 
-    print(response)
     time.sleep(2)
