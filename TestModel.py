@@ -1,4 +1,3 @@
-from cv2 import CAP_PROP_FPS
 import cv2
 import numpy as np
 import mediapipe as mp
@@ -8,6 +7,8 @@ import tflite_runtime.interpreter as tflite
 # import pyttsx3
 import time
 from gestures import actions
+from CvFpsCalc import CvFpsCalc
+
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 # mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
@@ -93,12 +94,14 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 holistic_def = mp_holistic.Holistic(
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
 # Set mediapipe model 
+cvFpsCalc = CvFpsCalc(buffer_len=10)
 while cap.isOpened():
-
+    display_fps = cvFpsCalc.get()
+    print(display_fps)
     # Read feed
     ret, frame = cap.read()
 
@@ -121,7 +124,6 @@ while cap.isOpened():
         # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
         
     # 3. Viz logic
-        print(res[np.argmax(res)])
         if res[np.argmax(res)] > threshold: 
             if actions[np.argmax(res)] == '-':
                 if start:
