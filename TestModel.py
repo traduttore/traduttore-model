@@ -10,7 +10,7 @@ import time
 from gestures import actions
 
 mp_holistic = mp.solutions.holistic  # Holistic model
-mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
+# mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 def mediapipe_detection(image, model):
     # COLOR CONVERSION BGR 2 RGB
