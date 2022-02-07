@@ -138,6 +138,7 @@ while cap.isOpened():
                 start = None
             else:
                 if len(sentence) > 0:
+                    print("test")
                     if actions[np.argmax(res)] != sentence[-1]:
                         sentence.append(actions[np.argmax(res)])
                     buffer_time = timer()
@@ -150,9 +151,9 @@ while cap.isOpened():
             sentence = []
 
         # Viz probabilities
-        image = prob_viz(res, actions, image, colors)
+        # image = prob_viz(res, actions, image, colors)
         
-    cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
+    # cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
     output_sentence = (' '.join(sentence)).replace('-', ' ')
     print(output_sentence)
     try:
@@ -164,14 +165,14 @@ while cap.isOpened():
             output_sentence = "Please make sure the hand is within frame."
     except:
         pass
-    cv2.putText(image, output_sentence, (3,30), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    # cv2.putText(image, output_sentence, (3,30), 
+    #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
     # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
     #     engine = pyttsx3.init()
     #     engine.say(output_sentence)
     #     engine.runAndWait()
     # Show to screen
-    cv2.imshow('OpenCV Feed', image)
+    # cv2.imshow('OpenCV Feed', image)
 
     # Break gracefully
     if cv2.waitKey(10) & 0xFF == ord('q'):
