@@ -94,84 +94,85 @@ def model_predict(data):
     return output_data
 
 cap = cv2.VideoCapture(0)
+holistic_def = mp_holistic.Holistic(
+    min_detection_confidence=0.5, min_tracking_confidence=0.5)
 # Set mediapipe model 
-with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-    while cap.isOpened():
+while cap.isOpened():
 
-        # Read feed
-        ret, frame = cap.read()
+    # Read feed
+    ret, frame = cap.read()
 
-        # Make detections
-        image, results = mediapipe_detection(frame, holistic)
-        
-        # Draw landmarks
-        # draw_styled_landmarks(image, results)
-        
-        # 2. Prediction logic
-        keypoints = extract_keypoints(results)
+    # Make detections
+    image, results = mediapipe_detection(frame, holistic_def)
+    
+    # Draw landmarks
+    # draw_styled_landmarks(image, results)
+    
+    # 2. Prediction logic
+    keypoints = extract_keypoints(results)
 
-        # sequence.insert(0,keypoints)
-        # sequence = sequence[:30]
-        sequence.append(keypoints)
-        sequence = sequence[-30:]
+    # sequence.insert(0,keypoints)
+    # sequence = sequence[:30]
+    sequence.append(keypoints)
+    sequence = sequence[-30:]
+    
+    if len(sequence) == 30:
+        res = model_predict(np.expand_dims(sequence, axis=0))[0]
+        # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
         
-        if len(sequence) == 30:
-            res = model_predict(np.expand_dims(sequence, axis=0))[0]
-            # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
-            
-        # 3. Viz logic
-            print(res[np.argmax(res)])
-            if res[np.argmax(res)] > threshold: 
-                if actions[np.argmax(res)] == '-':
-                    if start:
-                        elapsed = timer() - start
-                        if elapsed>3:
-                            sentence = []
-                        if elapsed>10:
-                            break
-                    else:
-                        start = timer()
-                elif start:
-                    start = None
+    # 3. Viz logic
+        print(res[np.argmax(res)])
+        if res[np.argmax(res)] > threshold: 
+            if actions[np.argmax(res)] == '-':
+                if start:
+                    elapsed = timer() - start
+                    if elapsed>3:
+                        sentence = []
+                    if elapsed>10:
+                        break
                 else:
-                    if len(sentence) > 0:
-                        if actions[np.argmax(res)] != sentence[-1]:
-                            sentence.append(actions[np.argmax(res)])
-                        buffer_time = timer()
-                        while buffer_time<2:
-                            pass
-                    else:
+                    start = timer()
+            elif start:
+                start = None
+            else:
+                if len(sentence) > 0:
+                    if actions[np.argmax(res)] != sentence[-1]:
                         sentence.append(actions[np.argmax(res)])
+                    buffer_time = timer()
+                    while buffer_time<2:
+                        pass
+                else:
+                    sentence.append(actions[np.argmax(res)])
 
-            if len(sentence) > 7: 
-                sentence = []
+        if len(sentence) > 7: 
+            sentence = []
 
-            # Viz probabilities
-            image = prob_viz(res, actions, image, colors)
-            
-        cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
-        output_sentence = (' '.join(sentence)).replace('-', ' ')
-        print(output_sentence)
-        try:
-            y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
-            y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
-            if (y_coordinate_right_hand or y_coordinate_left_hand) \
-                and not (0.15 < y_coordinate_left_hand < 0.9) \
-                and not (0.15 < y_coordinate_right_hand < 0.9):
-                output_sentence = "Please make sure the hand is within frame."
-        except:
-            pass
-        cv2.putText(image, output_sentence, (3,30), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
-        #     engine = pyttsx3.init()
-        #     engine.say(output_sentence)
-        #     engine.runAndWait()
-        # Show to screen
-        cv2.imshow('OpenCV Feed', image)
+        # Viz probabilities
+        image = prob_viz(res, actions, image, colors)
+        
+    cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
+    output_sentence = (' '.join(sentence)).replace('-', ' ')
+    print(output_sentence)
+    try:
+        y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
+        y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
+        if (y_coordinate_right_hand or y_coordinate_left_hand) \
+            and not (0.15 < y_coordinate_left_hand < 0.9) \
+            and not (0.15 < y_coordinate_right_hand < 0.9):
+            output_sentence = "Please make sure the hand is within frame."
+    except:
+        pass
+    cv2.putText(image, output_sentence, (3,30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
+    #     engine = pyttsx3.init()
+    #     engine.say(output_sentence)
+    #     engine.runAndWait()
+    # Show to screen
+    cv2.imshow('OpenCV Feed', image)
 
-        # Break gracefully
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    # Break gracefully
+    if cv2.waitKey(10) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
