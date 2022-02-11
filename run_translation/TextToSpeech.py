@@ -1,6 +1,12 @@
-import pyttsx3
+from gtts import gTTS
+import os
+import playsound
 
-def tts(sentence):
-    engine = pyttsx3.init()
-    engine.say(sentence)
-    engine.runAndWait()
+
+def tts(text):
+    tts = gTTS(text=text, lang='en')
+
+    filename = "tempfile.mp3"
+    tts.save(filename)
+    playsound.playsound(filename)
+    os.remove(filename)
