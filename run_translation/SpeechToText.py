@@ -5,15 +5,13 @@ import time
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
 
-for i in range(5):
-    print("speak")
+def stt():
+    response = ""
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
     try:
-        response = recognizer.recognize_google(audio)    
-        print(response)
+        response = recognizer.recognize_google(audio)
     except:
-        print("I didn't catch that")
-
-    time.sleep(2)
+        response = "I didn't catch that"
+    return response
