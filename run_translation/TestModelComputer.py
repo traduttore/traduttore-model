@@ -4,7 +4,6 @@ import mediapipe as mp
 # from tensorflow.keras.models import load_model
 from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
-# import pyttsx3
 import time
 from gestures import actions
 from CvFpsCalc import CvFpsCalc
@@ -23,8 +22,6 @@ def mediapipe_detection(image, model):
 
 
 def draw_landmarks(image, results):
-    # mp_drawing.draw_landmarks(image, results.face_landmarks,
-    #                           mp_holistic.FACEMESH_TESSELATION)  # Draw face connections
     mp_drawing.draw_landmarks(image, results.pose_landmarks,
                               mp_holistic.POSE_CONNECTIONS)  # Draw pose connections
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks,
@@ -34,13 +31,6 @@ def draw_landmarks(image, results):
 
 
 def draw_styled_landmarks(image, results):
-    # # Draw face connections
-    # mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
-    #                           mp_drawing.DrawingSpec(
-    #                               color=(80, 110, 10), thickness=1, circle_radius=1),
-    #                           mp_drawing.DrawingSpec(
-    #                               color=(80, 256, 121), thickness=1, circle_radius=1)
-    #                           )
     # Draw pose connections
     mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS,
                               mp_drawing.DrawingSpec(
@@ -66,8 +56,6 @@ def draw_styled_landmarks(image, results):
 def extract_keypoints(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten(
     ) if results.pose_landmarks else np.zeros(33*4)
-    # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten(
-    # ) if results.face_landmarks else np.zeros(468*3)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten(
     ) if results.left_hand_landmarks else np.zeros(21*3)
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten(
@@ -80,17 +68,14 @@ def prob_viz(res, actions, input_frame, colors):
     for num, prob in enumerate(res):
         cv2.rectangle(output_frame, (0,60+num*40), (int(prob*100), 90+num*40), colors[num], -1)
         cv2.putText(output_frame, actions[num], (0, 85+num*40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        
     return output_frame
 
 # 1. New detection variables
-sequence = []
-sentence = []
+
 threshold = 0.9
-start = None
+
 colors = [(245, 117, 16)]*(actions.size)
 
-# model = load_model('action')
 interpreter = tflite.Interpreter(model_path='model.tflite')
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
@@ -103,10 +88,18 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-cap = cv2.VideoCapture(1)
-cvFpsCalc = CvFpsCalc(buffer_len=10)
-# Set mediapipe model 
-with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+def asl_translation():
+    sequence = []
+    sentence = []
+    start = None
+    try:
+        cap = cv2.VideoCapture(1)
+    except:
+        cap = cv2.VideoCapture(0)
+    cvFpsCalc = CvFpsCalc(buffer_len=10)
+    # Set mediapipe model 
+    holistic_def = mp_holistic.Holistic(
+        min_detection_confidence=0.5, min_tracking_confidence=0.5)
     while cap.isOpened():
         display_fps = cvFpsCalc.get()
         print(display_fps)
@@ -114,7 +107,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         ret, frame = cap.read()
 
         # Make detections
-        image, results = mediapipe_detection(frame, holistic)
+        image, results = mediapipe_detection(frame, holistic_def)
         
         # Draw landmarks
         draw_styled_landmarks(image, results)
@@ -129,7 +122,6 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         
         if len(sequence) == 30:
             res = model_predict(np.expand_dims(sequence, axis=0))[0]
-            # res = model.predict(np.expand_dims(sequence, axis=0))[0]            
             
         # 3. Viz logic
             print(res[np.argmax(res)])
@@ -137,10 +129,8 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                 if actions[np.argmax(res)] == '-':
                     if start:
                         elapsed = timer() - start
-                        if elapsed>3:
-                            sentence = []
                         if elapsed>10:
-                            break
+                            return (' '.join(sentence)).replace('-', ' ')
                     else:
                         start = timer()
                 elif start:
@@ -149,9 +139,6 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                     if len(sentence) > 0:
                         if actions[np.argmax(res)] != sentence[-1]:
                             sentence.append(actions[np.argmax(res)])
-                        buffer_time = timer()
-                        while buffer_time<2:
-                            pass
                     else:
                         sentence.append(actions[np.argmax(res)])
 
@@ -174,11 +161,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         except:
             pass
         cv2.putText(image, output_sentence, (3,30), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
-        #     engine = pyttsx3.init()
-        #     engine.say(output_sentence)
-        #     engine.runAndWait()
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         # Show to screen
         cv2.imshow('OpenCV Feed', image)
 

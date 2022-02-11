@@ -80,6 +80,7 @@ sentence = []
 threshold = 0.9
 start = None
 colors = [(245, 117, 16)]*(actions.size)
+hand_in_screen = True
 
 # model = load_model('action')
 interpreter = tflite.Interpreter(model_path='model.tflite')
@@ -163,10 +164,18 @@ while cap.isOpened():
             and not (0.15 < y_coordinate_left_hand < 0.9) \
             and not (0.15 < y_coordinate_right_hand < 0.9):
             output_sentence = "Please make sure the hand is within frame."
+            hand_in_screen = False
+        else:
+            hand_in_screen = True
     except:
         pass
-    # cv2.putText(image, output_sentence, (3,30), 
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    if not hand_in_screen:
+        cv2.putText(image, output_sentence, (3,30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.imshow('OpenCV Feed', image)
+    else:
+        cv2.destroyAllWindows()
+
     # if output_sentence != "Please make sure the hand is within frame." and len(sentence) > 3:
     #     engine = pyttsx3.init()
     #     engine.say(output_sentence)
