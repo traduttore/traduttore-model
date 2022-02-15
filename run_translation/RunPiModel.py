@@ -92,26 +92,16 @@ def rasp_translation():
                     if start:
                         elapsed = timer() - start
                         if elapsed>5:
-                            cap.release()
-                            cv2.destroyAllWindows()
                             return "STOP_RECORDING"
                     else:
                         start = timer()
                 elif start:
                     start = None
                 else:
-                    if len(sentence) > 0:
-                        if actions[np.argmax(res)] != sentence[-1]:
-                            sentence.append(actions[np.argmax(res)])
-                    else:
-                        sentence.append(actions[np.argmax(res)])
-
-            if len(sentence) > 7: 
-                sentence = []
-            
-        output_sentence = (' '.join(sentence)).replace('-', ' ')
-        print(output_sentence)
-        return output_sentence
+                    sentence.append(actions[np.argmax(res)])
+                    output_sentence = (' '.join(sentence)).replace('-', ' ')
+                    print(output_sentence)
+                    return output_sentence
         # try:
         #     y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
         #     y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
