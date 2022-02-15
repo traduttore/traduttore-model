@@ -92,7 +92,7 @@ def asl_translation():
     sequence = []
     sentence = []
     start = None
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     cvFpsCalc = CvFpsCalc(buffer_len=10)
     # Set mediapipe model 
     holistic_def = mp_holistic.Holistic(
@@ -127,6 +127,8 @@ def asl_translation():
                     if start:
                         elapsed = timer() - start
                         if elapsed>10:
+                            cap.release()
+                            cv2.destroyAllWindows()
                             return (' '.join(sentence)).replace('-', ' ')
                     else:
                         start = timer()
