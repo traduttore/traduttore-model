@@ -12,7 +12,7 @@ mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 # Constants
 WEBCAM_ID = 0
 TARGET_WORD = 'tea'
-STARTING_INDEX = 60
+STARTING_INDEX = 120
 
 '''
 tea, no , yes need to be retrained
