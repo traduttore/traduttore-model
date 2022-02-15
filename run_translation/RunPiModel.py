@@ -81,9 +81,9 @@ def rasp_translation():
         keypoints = extract_keypoints(results)
 
         sequence.append(keypoints)
-        sequence = sequence[-30:]
+        sequence = sequence[-20:]
         
-        if len(sequence) == 30:
+        if len(sequence) == 20:
             res = model_predict(np.expand_dims(sequence, axis=0))[0]
             
         # 3. Viz logic
