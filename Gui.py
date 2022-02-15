@@ -6,25 +6,11 @@ from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 
-from run_translation.TestModelComputer import asl_translation
+from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
 
 root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
-
-<ImageButton@ButtonBehavior+Image>:
-    size_hint: None, None
-    size: self.texture_size
-
-    canvas.before:
-        PushMatrix
-        Scale:
-            origin: self.center
-            x: .75 if self.state == 'down' else 1
-            y: .75 if self.state == 'down' else 1
-
-    canvas.after:
-        PopMatrix
 
 <GUI>:
     BoxLayout:
@@ -61,23 +47,6 @@ root = Builder.load_string('''
                     )
                 pos_hint: {'pos': (0, 0)}
                 on_release: app.scroll_bottom()
-
-        BoxLayout:
-            size_hint: 1, None
-            size: self.minimum_size
-            TextInput:
-                id: ti
-                size_hint: 1, None
-                height: min(max(self.line_height, self.minimum_height), 150)
-                multiline: False
-
-                on_text_validate:
-                    app.send_message(self)
-
-            ImageButton:
-                source: 'data/logo/kivy-icon-48.png'
-                on_release:
-                    app.send_message(ti)
 
 <Message@FloatLayout>:
     message_id: -1
@@ -146,41 +115,50 @@ class MessengerApp(App):
 
     def word_builder(self, dt):
         if Clock.frames_displayed != 0:
-            word = rasp_translation()
-            print(word)
-            if word == "STOP_RECORDING":
-                self.send_message(self.create_obj('-'))
-            else:
-                if len(self.messages):
-                    message = self.messages[-1]
+            if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
+                spoken = stt()
+                if spoken != "I_DIDNT_CATCH_THAT":
                     self.messages[-1] = {
-                        'message_id': message['message_id'],
-                        'text': message['text'] + word + ' ',
-                        'side': message['side'],
-                        'bg_color': message['bg_color'],
-                        'text_size': [None, None],
-                    }
+                                'message_id': self.messages[-1]['message_id'],
+                                'text': spoken,
+                                'side': self.messages[-1]['side'],
+                                'bg_color': self.messages[-1]['bg_color'],
+                                'text_size': self.messages[-1]['text_size'],
+                                'last_word': spoken,
+                            }
+                self.send_message(self.create_obj('-'), '')
+            else:
+                word = rasp_translation()
+                if word == "STOP_RECORDING":
+                    self.response('-')
                 else:
-                    self.send_message(self.create_obj(word))
+                    if len(self.messages):
+                        message = self.messages[-1]
+                        if message['last_word'] != word: 
+                            self.messages[-1] = {
+                                'message_id': message['message_id'],
+                                'text': (message['text'] if message['text'] != '...' else '') + word + ' ',
+                                'side': message['side'],
+                                'bg_color': message['bg_color'],
+                                'text_size': message['text_size'],
+                                'last_word': word,
+                            }
+                    else:
+                        self.send_message(self.create_obj(word + ' '), word)
 
     def initiate_model(self):
         # func = lambda dt: print(dt)
         Clock.schedule_interval(self.word_builder, 1)
 
-    def asl_to_english_text(self, data = 'did it?'):
-        self.asl_to_english = data
-
-    def speech_to_english_text(self, data = 'did it?'):
-        self.speech_to_english = data
-
-    def add_message(self, text, side, color):
+    def add_message(self, text, side, color, last_word):
         # create a message for the recycleview
         self.messages.append({
             'message_id': len(self.messages),
-            'text': text,
+            'text': '...' if text == '-' else text,
             'side': side,
             'bg_color': color,
             'text_size': [None, None],
+            'last_word': last_word,
         })
 
     def update_message_size(self, message_id, texture_size, max_width):
@@ -214,25 +192,13 @@ class MessengerApp(App):
                 '_size': texture_size,
             }
 
-    def send_message(self, textinput):
+    def send_message(self, textinput, last_word):
         text = textinput.text
         if text != '':
-            if text == '-':
-                self.add_message('', 'right', '#223344')
-            else:
-                self.add_message(text, 'right', '#223344')
-            # Clock.schedule_once(lambda *args: self.answer(text), -1)
-            self.scroll_bottom()
+            self.add_message(text, 'right', '#223344', last_word)
 
-    def answer(self, text, *args):
-        self.add_message('do you really think so?', 'left', '#332211')
-
-    def scroll_bottom(self):
-        rv = self.root.ids.rv
-        box = self.root.ids.box
-        if rv.height < box.height:
-            Animation.cancel_all(rv, 'scroll_y')
-            Animation(scroll_y=0, t='out_quad', d=.5).start(rv)
+    def response(self, text, *args):
+        self.add_message(text, 'left', '#332211', '')
 
 
 if __name__ == '__main__':
