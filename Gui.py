@@ -7,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 
 from run_translation.TestModelComputer import asl_translation
+from run_translation.RunPiModel import rasp_translation
 
 root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
@@ -143,11 +144,28 @@ class MessengerApp(App):
         a.text = value
         return a
 
+    def word_builder(self, dt):
+        if Clock.frames_displayed != 0:
+            word = rasp_translation()
+            print(word)
+            if word == "STOP_RECORDING":
+                self.send_message(self.create_obj('-'))
+            else:
+                if len(self.messages):
+                    message = self.messages[-1]
+                    self.messages[-1] = {
+                        'message_id': message['message_id'],
+                        'text': message['text'] + word + ' ',
+                        'side': message['side'],
+                        'bg_color': message['bg_color'],
+                        'text_size': [None, None],
+                    }
+                else:
+                    self.send_message(self.create_obj(word))
+
     def initiate_model(self):
-        a = Object()
-        func = lambda dt: print(dt) if Clock.frames_displayed == 0 else self.send_message(self.create_obj(asl_translation()))
         # func = lambda dt: print(dt)
-        Clock.schedule_interval(func, 1)
+        Clock.schedule_interval(self.word_builder, 1)
 
     def asl_to_english_text(self, data = 'did it?'):
         self.asl_to_english = data
@@ -196,17 +214,14 @@ class MessengerApp(App):
                 '_size': texture_size,
             }
 
-    @staticmethod
-    def focus_textinput(textinput):
-        textinput.focus = True
-
     def send_message(self, textinput):
         text = textinput.text
-        textinput.text = ''
         if text != '':
-            self.add_message(text, 'right', '#223344')
-            self.focus_textinput(textinput)
-            Clock.schedule_once(lambda *args: self.answer(text), 1)
+            if text == '-':
+                self.add_message('', 'right', '#223344')
+            else:
+                self.add_message(text, 'right', '#223344')
+            # Clock.schedule_once(lambda *args: self.answer(text), -1)
             self.scroll_bottom()
 
     def answer(self, text, *args):
