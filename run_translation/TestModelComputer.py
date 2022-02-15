@@ -72,7 +72,7 @@ def prob_viz(res, actions, input_frame, colors):
 
 # 1. New detection variables
 
-threshold = 0.9
+threshold = 0.99
 
 colors = [(245, 117, 16)]*(actions.size)
 
@@ -115,9 +115,9 @@ def asl_translation():
         # sequence.insert(0,keypoints)
         # sequence = sequence[:30]
         sequence.append(keypoints)
-        sequence = sequence[-30:]
+        sequence = sequence[-20:]
         
-        if len(sequence) == 30:
+        if len(sequence) == 20:
             res = model_predict(np.expand_dims(sequence, axis=0))[0]
             
         # 3. Viz logic

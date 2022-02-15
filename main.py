@@ -6,5 +6,5 @@ from run_translation.RunPiModel import rasp_translation
 if __name__ == "__main__":
     sentence = asl_translation()
     # rasp_sentence = rasp_translation()
-    tts(sentence)
+    # tts(sentence)
     # print(stt())

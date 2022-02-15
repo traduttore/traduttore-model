@@ -1,4 +1,3 @@
 import numpy as np
 
-actions = np.array(['hello', 'no', '-', 'thank-you', 'yes',
-                   'small', 'medium', 'large', 'tea', 'coffee'])
+actions = np.array(['hello', 'thank-you', 'coffee', '-', 'tea', 'please', 'medium'])

@@ -10,9 +10,9 @@ mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 # Constants
-WEBCAM_ID = 1
-TARGET_WORD = 'tester'
-STARTING_INDEX = 30
+WEBCAM_ID = 0
+TARGET_WORD = 'tea'
+STARTING_INDEX = 60
 
 '''
 tea, no , yes need to be retrained
@@ -94,7 +94,7 @@ videos_collected = STARTING_INDEX
 no_sequences = 30
 
 # Videos are going to be 30 frames in lengh
-sequence_length = 30
+sequence_length = 20
 
 for action in actions:
     for sequence in range(videos_collected, videos_collected+no_sequences):
