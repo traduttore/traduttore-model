@@ -10,9 +10,9 @@ mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 # Constants
-WEBCAM_ID = 0
-TARGET_WORD = 'tea'
-STARTING_INDEX = 0
+WEBCAM_ID = 1
+TARGET_WORD = 'tester'
+STARTING_INDEX = 30
 
 '''
 tea, no , yes need to be retrained
