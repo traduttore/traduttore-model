@@ -88,11 +88,11 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def asl_translation():
+def asl_translation(CAM_ID=1):
     sequence = []
     sentence = []
     start = None
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(CAM_ID)
     cvFpsCalc = CvFpsCalc(buffer_len=10)
     # Set mediapipe model 
     holistic_def = mp_holistic.Holistic(
