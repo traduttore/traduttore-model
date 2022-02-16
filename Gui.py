@@ -13,40 +13,47 @@ root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
 
 <GUI>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: dp(5), dp(5)
-        RecycleView:
-            id: rv
-            data: app.messages
-            viewclass: 'Message'
-            do_scroll_x: False
+    FloatLayout:
+        Button:
+            text: 'Traduttore'
+            size_hint: 1, 0.1
+            pos_hint: {'top': 1, 'x': 0}
+        BoxLayout:
+            pos_hint: {'bottom': 1, 'x': 0}
+            size_hint: 1, 0.9
+            orientation: 'vertical'
+            padding: dp(5), dp(5)
+            RecycleView:
+                id: rv
+                data: app.messages
+                viewclass: 'Message'
+                do_scroll_x: False
 
-            RecycleBoxLayout:
-                id: box
-                orientation: 'vertical'
-                size_hint_y: None
-                size: self.minimum_size
-                default_size_hint: 1, None
-                # magic value for the default height of the message
-                default_size: 0, 38
-                key_size: '_size'
+                RecycleBoxLayout:
+                    id: box
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    size: self.minimum_size
+                    default_size_hint: 1, None
+                    # magic value for the default height of the message
+                    default_size: 0, 38
+                    key_size: '_size'
 
-        FloatLayout:
-            size_hint_y: None
-            height: 0
-            Button:
+            FloatLayout:
                 size_hint_y: None
-                height: self.texture_size[1]
-                opacity: 0 if not self.height else 1
-                text:
-                    (
-                    'go to last message'
-                    if rv.height < box.height and rv.scroll_y > 0 else
-                    ''
-                    )
-                pos_hint: {'pos': (0, 0)}
-                on_release: app.scroll_bottom()
+                height: 0
+                Button:
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    opacity: 0 if not self.height else 1
+                    text:
+                        (
+                        'go to last message'
+                        if rv.height < box.height and rv.scroll_y > 0 else
+                        ''
+                        )
+                    pos_hint: {'pos': (0, 0)}
+                    on_release: app.scroll_bottom()
 
 <Message@FloatLayout>:
     message_id: -1
@@ -102,7 +109,14 @@ class GUI(BoxLayout):
     pass
 
 class MessengerApp(App):
-    messages = ListProperty()
+    messages = ListProperty([{
+                                'message_id': 0,
+                                'text': '',
+                                'side': 'right',
+                                'bg_color': '#223344',
+                                'text_size': [None, None],
+                                'last_word': '',
+                            }])
 
     def build(self):
         self.initiate_model()
