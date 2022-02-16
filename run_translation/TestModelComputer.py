@@ -92,7 +92,7 @@ def asl_translation():
     sequence = []
     sentence = []
     start = None
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     cvFpsCalc = CvFpsCalc(buffer_len=10)
     # Set mediapipe model 
     holistic_def = mp_holistic.Holistic(
