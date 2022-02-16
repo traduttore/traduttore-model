@@ -7,8 +7,6 @@ import tflite_runtime.interpreter as tflite
 # import pyttsx3
 import time
 from gestures import actions
-from CvFpsCalc import CvFpsCalc
-
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 
@@ -67,10 +65,7 @@ def rasp_translation():
     holistic_def = mp_holistic.Holistic(
         min_detection_confidence=0.5, min_tracking_confidence=0.5)
     # Set mediapipe model 
-    cvFpsCalc = CvFpsCalc(buffer_len=10)
     while cap.isOpened():
-        display_fps = cvFpsCalc.get()
-        print(display_fps)
         # Read feed
         ret, frame = cap.read()
 
