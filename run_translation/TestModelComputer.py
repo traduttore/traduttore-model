@@ -140,7 +140,6 @@ def asl_translation():
                             sentence.append(actions[np.argmax(res)])
                     else:
                         sentence.append(actions[np.argmax(res)])
-                    time.sleep(1)
 
             if len(sentence) > 7: 
                 sentence = []
