@@ -86,7 +86,7 @@ def rasp_translation():
                 if actions[np.argmax(res)] == '-':
                     if start:
                         elapsed = timer() - start
-                        if elapsed>5:
+                        if elapsed>2:
                             return "STOP_RECORDING"
                     else:
                         start = timer()
