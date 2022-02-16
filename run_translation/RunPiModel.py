@@ -84,8 +84,10 @@ def rasp_translation():
         # 3. Viz logic
             if res[np.argmax(res)] > threshold: 
                 if actions[np.argmax(res)] == '-':
+                    print("its getting do nothing")
                     if start:
                         elapsed = timer() - start
+                        print(elapsed)
                         if elapsed>2:
                             return "STOP_RECORDING"
                     else:
