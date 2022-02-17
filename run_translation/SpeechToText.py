@@ -10,13 +10,8 @@ def stt():
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
-    # try:
+    try:
         response = recognizer.recognize_google(audio)
-    # except:
-    #     response = "I didn't catch that"
+    except:
+        response = "I didn't catch that"
     return response
-
-print(stt())
-for index, name in enumerate(sr.Microphone.list_microphone_names()):
-    print("Microphone with name \"{1}\" found for Microphone(device_index={0})".format(
-        index, name))
