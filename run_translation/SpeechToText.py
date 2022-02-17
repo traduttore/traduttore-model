@@ -10,8 +10,8 @@ def stt():
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
-    try:
+    # try:
         response = recognizer.recognize_google(audio)
-    except:
-        response = "I_DIDNT_CATCH_THAT"
+    # except:
+    #     response = "I didn't catch that"
     return response
