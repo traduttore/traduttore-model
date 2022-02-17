@@ -15,3 +15,4 @@ def stt():
     except:
         response = "I didn't catch that"
     return response
+print(stt())
