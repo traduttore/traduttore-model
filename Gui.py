@@ -5,7 +5,6 @@ from kivy.properties import ListProperty
 from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
-import mediapipe as mp
 from timeit import default_timer as timer
 
 from run_translation.SpeechToText import stt
@@ -167,31 +166,16 @@ class MessengerApp(App):
         # func = lambda dt: print(dt)        
         self.configure_position()
         Clock.schedule_interval(self.word_builder, 1)
-        
-    def configure_position(self):
-        mp_holistic = mp.solutions.holistic  # Holistic model
-        cap = cv2.VideoCapture(0)
-        holistic_def = mp_holistic.Holistic(
-            min_detection_confidence=0.5, min_tracking_confidence=0.5)
-        start = timer()
-        while cap.isOpened():
-            ret, frame = cap.read()
-            image, results = self.mediapipe_detection(frame, holistic_def)
-            cv2.imshow('OpenCV Feed', image)
-            if timer()-start>5:
-                cap.release()
-                cv2.destroyAllWindows()
-                break
 
-    def mediapipe_detection(self, image, model):
-        # COLOR CONVERSION BGR 2 RGB
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False                  # Image is no longer writeable
-        results = model.process(image)                 # Make prediction
-        image.flags.writeable = True                   # Image is now writeable
-        # COLOR COVERSION RGBß 2 BGR
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        return image, results
+    def configure_position(self):
+        cap = cv2.VideoCapture(1)
+        while cap.isOpened():
+            ret, image = cap.read()
+            cv2.imshow('OpenCV Feed', image)
+            if cv2.waitKey(10) & 0xFF == ord('q'):
+                break
+        cap.release()
+        cv2.destroyAllWindows()
 
 
     def add_message(self, text, side, color, last_word):
