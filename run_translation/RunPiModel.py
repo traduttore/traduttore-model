@@ -28,18 +28,9 @@ def extract_keypoints(results):
     ) if results.right_hand_landmarks else np.zeros(21*3)
     return np.concatenate([pose, lh, rh])
 
-
-def prob_viz(res, actions, input_frame, colors):
-    output_frame = input_frame.copy()
-    for num, prob in enumerate(res):
-        cv2.rectangle(output_frame, (0,60+num*40), (int(prob*100), 90+num*40), colors[num], -1)
-        cv2.putText(output_frame, actions[num], (0, 85+num*40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
-        
-    return output_frame
-
 # 1. New detection variables
 
-threshold = 0.9
+threshold = 0.97
 
 colors = [(245, 117, 16)]*(actions.size)
 # hand_in_screen = True
@@ -61,7 +52,7 @@ def rasp_translation():
     sequence = []
     sentence = []
     start = None
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     holistic_def = mp_holistic.Holistic(
         min_detection_confidence=0.5, min_tracking_confidence=0.5)
     # Set mediapipe model 

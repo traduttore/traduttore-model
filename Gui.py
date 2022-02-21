@@ -9,6 +9,8 @@ from timeit import default_timer as timer
 
 from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
+from run_translation.TextToSpeech import tts
+
 import cv2
 
 root = Builder.load_string('''
@@ -132,6 +134,7 @@ class MessengerApp(App):
     def word_builder(self, dt):
         if Clock.frames_displayed != 0:
             if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
+                tts(self.messages[-2]['text'])
                 spoken = stt()
                 if spoken != "I_DIDNT_CATCH_THAT":
                     self.messages[-1] = {
@@ -168,7 +171,7 @@ class MessengerApp(App):
         Clock.schedule_interval(self.word_builder, 1)
 
     def configure_position(self):
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
         while cap.isOpened():
             ret, image = cap.read()
             cv2.imshow('OpenCV Feed', image)

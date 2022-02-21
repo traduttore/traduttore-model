@@ -10,9 +10,10 @@ mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 # Constants
-WEBCAM_ID = 0
-TARGET_WORD = 'tea'
+WEBCAM_ID = 1
+TARGET_WORD = '-'
 STARTING_INDEX = 120
+VIDEOS_TO_COLLECT = 60
 
 '''
 tea, no , yes need to be retrained
@@ -91,7 +92,7 @@ actions = np.array([TARGET_WORD])
 
 # Thirty videos worth of data
 videos_collected = STARTING_INDEX
-no_sequences = 30
+no_sequences = VIDEOS_TO_COLLECT
 
 # Videos are going to be 30 frames in lengh
 sequence_length = 20
