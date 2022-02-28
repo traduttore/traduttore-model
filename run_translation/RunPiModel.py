@@ -61,6 +61,7 @@ def rasp_translation():
     sequence = []
     sentence = []
     start = None
+    hand_count = 0
     cap = cv2.VideoCapture(0)
     holistic_def = mp_holistic.Holistic(
         min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -97,18 +98,25 @@ def rasp_translation():
                     output_sentence = (' '.join(sentence)).replace('-', ' ')
                     print(output_sentence)
                     return output_sentence
-        # try:
-        #     y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
-        #     y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
-        #     if (y_coordinate_right_hand or y_coordinate_left_hand) \
-        #         and not (0.15 < y_coordinate_left_hand < 0.9) \
-        #         and not (0.15 < y_coordinate_right_hand < 0.9):
-        #         output_sentence = "Please make sure the hand is within frame."
-        #         hand_in_screen = False
-        #     else:
-        #         hand_in_screen = True
-        # except:
-        #     pass
+        try:
+            y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
+            y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
+            if (y_coordinate_right_hand or y_coordinate_left_hand) \
+                and not (0.15 < y_coordinate_left_hand < 0.9) \
+                and not (0.15 < y_coordinate_right_hand < 0.9):
+                output_sentence = "Please make sure the hand is within frame."
+                hand_in_screen = False
+            else:
+                hand_in_screen = True
+        except:
+            pass
+        print(hand_count)
+        if not hand_in_screen:
+            hand_count = hand_count + 1
+            if hand_count > 10:
+                return "STOP_RECORDING"
+        else:
+            hand_count = 0
         # if not hand_in_screen:
         #     cv2.putText(image, output_sentence, (3,30), 
         #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
