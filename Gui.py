@@ -5,9 +5,13 @@ from kivy.properties import ListProperty
 from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
+from timeit import default_timer as timer
 
 from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
+from run_translation.TextToSpeech import tts
+
+import cv2
 
 root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
@@ -130,6 +134,7 @@ class MessengerApp(App):
     def word_builder(self, dt):
         if Clock.frames_displayed != 0:
             if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
+                tts(self.messages[-2]['text'])
                 spoken = stt()
                 if spoken != "I_DIDNT_CATCH_THAT":
                     self.messages[-1] = {
@@ -161,8 +166,20 @@ class MessengerApp(App):
                         self.send_message(self.create_obj(word + ' '), word)
 
     def initiate_model(self):
-        # func = lambda dt: print(dt)
+        # func = lambda dt: print(dt)        
+        self.configure_position()
         Clock.schedule_interval(self.word_builder, 1)
+
+    def configure_position(self):
+        cap = cv2.VideoCapture(0)
+        while cap.isOpened():
+            ret, image = cap.read()
+            cv2.imshow('OpenCV Feed', image)
+            if cv2.waitKey(10) & 0xFF == ord('q'):
+                break
+        cap.release()
+        cv2.destroyAllWindows()
+
 
     def add_message(self, text, side, color, last_word):
         # create a message for the recycleview
