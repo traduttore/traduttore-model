@@ -11,9 +11,9 @@ mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 
 # Constants
 WEBCAM_ID = 1
-TARGET_WORD = 'muffin'
-STARTING_INDEX = 60
-VIDEOS_TO_COLLECT = 60
+TARGET_WORD = 'medium'
+STARTING_INDEX = 180
+VIDEOS_TO_COLLECT = 30
 
 '''
 tea, no , yes need to be retrained
