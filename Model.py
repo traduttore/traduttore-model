@@ -47,7 +47,7 @@ model.add(Dense(actions.shape[0], activation='softmax'))
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy',
               metrics=['categorical_accuracy'])
-model.fit(X_train, y_train, epochs=500)
+model.fit(X_train, y_train, epochs=700)
 
 model.save('action')
 converter = tf.lite.TFLiteConverter.from_saved_model('action')
