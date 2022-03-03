@@ -8,12 +8,16 @@ import mediapipe as mp
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
+DATA_PATH = os.path.join('MP_Data')
 
 # Constants
 WEBCAM_ID = 1
-TARGET_WORD = 'medium'
-STARTING_INDEX = 180
+TARGET_WORD = 'tea'
 VIDEOS_TO_COLLECT = 30
+folder_path = os.path.join(DATA_PATH, TARGET_WORD)
+len_data = len(os.listdir(folder_path))
+print(len_data)
+STARTING_INDEX = len_data
 
 '''
 tea, no , yes need to be retrained
@@ -83,9 +87,6 @@ def extract_keypoints(results):
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten(
     ) if results.right_hand_landmarks else np.zeros(21*3)
     return np.concatenate([pose, lh, rh])
-
-# Path for exported data, numpy arrays
-DATA_PATH = os.path.join('MP_Data')
 
 # Actions that we try to detect
 actions = np.array([TARGET_WORD])
