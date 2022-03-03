@@ -6,6 +6,7 @@ from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 from timeit import default_timer as timer
+from threading import Thread
 
 from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
@@ -18,46 +19,78 @@ root = Builder.load_string('''
 
 <GUI>:
     FloatLayout:
-        Button:
-            text: 'Traduttore'
-            size_hint: 1, 0.1
-            pos_hint: {'top': 1, 'x': 0}
         BoxLayout:
+            size_hint: 1, 0.05
+            pos_hint: {'top': 1, 'x': 0}
+            Button:
+                text: 'Traduttore'
+                size_hint: 0.95, 1
+                pos_hint: {'top': 1, 'x': 0}
+            Button:
+                text: 'Clear'
+                on_press: app.reset()
+                size_hint: 0.05, 1
+                pos_hint: {'top': 1, 'x': 1}
+        FloatLayout:
+            size_hint: 1, 0.9 
+            BoxLayout:
+                pos_hint: {'bottom': 1, 'x': 0}
+                orientation: 'vertical'
+                padding: dp(5), dp(5)
+                RecycleView:
+                    id: rv
+                    data: app.messages
+                    viewclass: 'Message'
+                    do_scroll_x: False
+
+                    RecycleBoxLayout:
+                        id: box
+                        orientation: 'vertical'
+                        size_hint_y: None
+                        size: self.minimum_size
+                        default_size_hint: 1, None
+                        # magic value for the default height of the message
+                        default_size: 0, 38
+                        key_size: '_size'
+
+                FloatLayout:
+                    size_hint_y: None
+                    height: 0
+                    Button:
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        opacity: 0 if not self.height else 1
+                        text:
+                            (
+                            'go to last message'
+                            if rv.height < box.height and rv.scroll_y > 0 else
+                            ''
+                            )
+                        pos_hint: {'pos': (0, 0)}
+                        on_release: app.scroll_bottom()
+        BoxLayout:
+            size_hint: 1, 0.05
             pos_hint: {'bottom': 1, 'x': 0}
-            size_hint: 1, 0.9
-            orientation: 'vertical'
-            padding: dp(5), dp(5)
-            RecycleView:
-                id: rv
-                data: app.messages
-                viewclass: 'Message'
-                do_scroll_x: False
-
-                RecycleBoxLayout:
-                    id: box
-                    orientation: 'vertical'
-                    size_hint_y: None
-                    size: self.minimum_size
-                    default_size_hint: 1, None
-                    # magic value for the default height of the message
-                    default_size: 0, 38
-                    key_size: '_size'
-
-            FloatLayout:
-                size_hint_y: None
-                height: 0
-                Button:
-                    size_hint_y: None
-                    height: self.texture_size[1]
-                    opacity: 0 if not self.height else 1
-                    text:
-                        (
-                        'go to last message'
-                        if rv.height < box.height and rv.scroll_y > 0 else
-                        ''
-                        )
-                    pos_hint: {'pos': (0, 0)}
-                    on_release: app.scroll_bottom()
+            Button:
+                size_hint: 0.7, 1
+                pos_hint: {'top': 1, 'x': 0}
+            Button:
+                text: 'Delete'
+                size_hint: 0.1, 1
+                pos_hint: {'top': 1, 'x': 1}
+                on_press: app.delete()
+            ToggleButton:
+                text: 'Text'
+                group: 'model'
+                size_hint: 0.1, 1
+                pos_hint: {'top': 1, 'x': 1}
+                on_press: app.modeloff()
+            ToggleButton:
+                text: 'Letters'
+                group: 'model'
+                size_hint: 0.1, 1
+                pos_hint: {'top': 1, 'x': 1}
+                on_press: app.modelon()
 
 <Message@FloatLayout>:
     message_id: -1
@@ -131,10 +164,11 @@ class MessengerApp(App):
         a.text = value
         return a
 
-    def word_builder(self, dt):
-        if Clock.frames_displayed != 0:
+    def word_builder(self):
+        while(1):
             if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
-                tts(self.messages[-2]['text'])
+                tts(self.messages[-2]['text'] if self.messages[-2]['text'] != '' else 'Please sign again')
+                print("STT")
                 spoken = stt()
                 if spoken != "I_DIDNT_CATCH_THAT":
                     self.messages[-1] = {
@@ -165,10 +199,41 @@ class MessengerApp(App):
                     else:
                         self.send_message(self.create_obj(word + ' '), word)
 
+    def word_builder_thread(self):
+        thread = Thread(target=self.word_builder)
+        thread.start()
+
+    def delete(self):
+        print('delete')
+        if len(self.messages) and self.messages[-1]['side'] == 'right' and self.messages[-1]['last_word'] != '':
+            print('-------')
+            print(self.messages[-1]['text'])
+            print(self.messages[-1]['text'].split(' '))
+            self.messages[-1]['text'] = ' '.join(self.messages[-1]['text'].split(' ')[:-1])
+            print(self.messages[-1]['text'])
+
+
+    def reset(self):
+        print('reset')
+        self.messages = [{
+            'message_id': 0,
+            'text': '',
+            'side': 'right',
+            'bg_color': '#223344',
+            'text_size': [None, None],
+            'last_word': '',
+        }]
+
+    def modeloff(self):
+        print('modeloff')
+
+    def modelon(self):
+        print('modelon')
+
     def initiate_model(self):
         # func = lambda dt: print(dt)        
-        self.configure_position()
-        Clock.schedule_interval(self.word_builder, 1)
+        # self.configure_position()
+        self.word_builder_thread()
 
     def configure_position(self):
         cap = cv2.VideoCapture(0)
