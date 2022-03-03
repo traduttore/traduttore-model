@@ -55,7 +55,6 @@ def rasp_translation():
     cap = cv2.VideoCapture(1)
     holistic_def = mp_holistic.Holistic(
         min_detection_confidence=0.5, min_tracking_confidence=0.5)
-    # Set mediapipe model 
     while cap.isOpened():
         # Read feed
         ret, frame = cap.read()
