@@ -6,13 +6,14 @@ from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 from timeit import default_timer as timer
-from threading import Thread
+from threading import Thread, Event
 
 from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
 from run_translation.TextToSpeech import tts
 
 import cv2
+import os
 
 root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
@@ -24,12 +25,26 @@ root = Builder.load_string('''
             pos_hint: {'top': 1, 'x': 0}
             Button:
                 text: 'Traduttore'
-                size_hint: 0.95, 1
+                size_hint: 0.8, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
-                text: 'Clear'
-                on_press: app.reset()
-                size_hint: 0.05, 1
+                id: pause_controller
+                text: 'Pause'
+                on_press:
+                    button_text = pause_controller.text
+                    pause_controller.text = 'Resume' if button_text == 'Pause' and controller.text == 'Clear' else 'Pause'
+                    app.pause() if button_text == 'Pause' else app.resume()
+                size_hint: 0.1, 1
+                pos_hint: {'top': 1, 'x': 1}
+            Button:
+                id: controller
+                text: 'Start'
+                on_press:
+                    button_text = controller.text
+                    controller.text = 'Start' if button_text == 'Clear' else 'Clear'
+                    pause_controller.text = 'Pause'
+                    app.start() if button_text == 'Start' else app.reset()
+                size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
         FloatLayout:
             size_hint: 1, 0.9 
@@ -72,6 +87,7 @@ root = Builder.load_string('''
             size_hint: 1, 0.05
             pos_hint: {'bottom': 1, 'x': 0}
             Button:
+                text: str(len(app.messages))
                 size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
@@ -95,10 +111,10 @@ root = Builder.load_string('''
 <Message@FloatLayout>:
     message_id: -1
     bg_color: '#223344'
-    side: 'left'
-    text: ''
+    side: 'right'
+    text: '...'
     size_hint_y: None
-    _size: 0, 0
+    _size: 38, 38
     size: self._size
     text_size: None, None
     opacity: min(1, self._size[0])
@@ -146,17 +162,13 @@ class GUI(BoxLayout):
     pass
 
 class MessengerApp(App):
-    messages = ListProperty([{
-                                'message_id': 0,
-                                'text': '',
-                                'side': 'right',
-                                'bg_color': '#223344',
-                                'text_size': [None, None],
-                                'last_word': '',
-                            }])
+    messages = ListProperty([])
+    thread = Thread()
+    stop_event = True
 
     def build(self):
-        self.initiate_model()
+        # self.configure_position()
+        self.thread = Thread(target=self.word_builder)
         return GUI()
 
     def create_obj(self, value):
@@ -166,74 +178,83 @@ class MessengerApp(App):
 
     def word_builder(self):
         while(1):
-            if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
-                tts(self.messages[-2]['text'] if self.messages[-2]['text'] != '' else 'Please sign again')
-                print("STT")
-                spoken = stt()
-                if spoken != "I_DIDNT_CATCH_THAT":
-                    self.messages[-1] = {
-                                'message_id': self.messages[-1]['message_id'],
-                                'text': spoken,
-                                'side': self.messages[-1]['side'],
-                                'bg_color': self.messages[-1]['bg_color'],
-                                'text_size': self.messages[-1]['text_size'],
-                                'last_word': spoken,
-                            }
-                self.send_message(self.create_obj('-'), '')
-            else:
-                word = rasp_translation()
-                if word == "STOP_RECORDING":
-                    self.response('-')
-                else:
-                    if len(self.messages):
-                        message = self.messages[-1]
-                        if message['last_word'] != word: 
+            if not self.stop_event:
+                if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
+                    if not self.messages[-2]['text'] in ['...', '', ' ']:
+                        tts(self.messages[-2]['text'])
+                    spoken = stt()
+                    if not self.stop_event:
+                        if spoken != "I_DIDNT_CATCH_THAT":
                             self.messages[-1] = {
-                                'message_id': message['message_id'],
-                                'text': (message['text'] if message['text'] != '...' else '') + word + ' ',
-                                'side': message['side'],
-                                'bg_color': message['bg_color'],
-                                'text_size': message['text_size'],
-                                'last_word': word,
-                            }
-                    else:
-                        self.send_message(self.create_obj(word + ' '), word)
-
-    def word_builder_thread(self):
-        thread = Thread(target=self.word_builder)
-        thread.start()
+                                        **self.messages[-1],
+                                        'text': spoken,
+                                        'last_word': spoken,
+                                    }
+                        self.send_message(self.create_obj('-'), '')
+                else:
+                    word = rasp_translation()
+                    if not self.stop_event:
+                        if word == "STOP_RECORDING":
+                            self.response('-')
+                        else:
+                            if len(self.messages):
+                                message = self.messages[-1]
+                                if message['last_word'] != word: 
+                                    self.messages[-1] = {
+                                        **self.messages[-1],
+                                        'text': (message['text'] if message['text'] != '...' else '') + ' ' + word,
+                                        'last_word': word,
+                                    }
+                            else:
+                                self.send_message(self.create_obj(word + ' '), word)
 
     def delete(self):
         print('delete')
         if len(self.messages) and self.messages[-1]['side'] == 'right' and self.messages[-1]['last_word'] != '':
-            print('-------')
-            print(self.messages[-1]['text'])
-            print(self.messages[-1]['text'].split(' '))
-            self.messages[-1]['text'] = ' '.join(self.messages[-1]['text'].split(' ')[:-1])
-            print(self.messages[-1]['text'])
+            message = self.messages[-1]
+            sentence_arr = self.messages[-1]['text'].split(' ')
+            last_word = sentence_arr[-1]
+            text = ' '.join(sentence_arr[:-1]) if message['text'] != '...' else '...'
+            if text == '':
+                self.messages[-1] = {
+                    **self.messages[-1],
+                    'text': '...',
+                    'last_word': '...',
+                }
+            else:
+                self.messages[-1] = {
+                    **self.messages[-1],
+                    'text': text,
+                    'last_word': last_word,
+                }
 
 
     def reset(self):
         print('reset')
-        self.messages = [{
-            'message_id': 0,
-            'text': '',
-            'side': 'right',
-            'bg_color': '#223344',
-            'text_size': [None, None],
-            'last_word': '',
-        }]
+        self.messages = []
+        self.stop_event = True
+
+    def pause(self):
+        print('pause')
+        self.stop_event = True
+
+    def resume(self):
+        print('resume')
+        self.stop_event = False
+
+    def start(self):
+        print('start')
+        self.stop_event = False
+        self.send_message(self.create_obj('...'), '...')
+        if not self.thread.is_alive():
+            self.thread.start()
+        print(self.thread.is_alive())
 
     def modeloff(self):
         print('modeloff')
 
     def modelon(self):
         print('modelon')
-
-    def initiate_model(self):
-        # func = lambda dt: print(dt)        
-        # self.configure_position()
-        self.word_builder_thread()
 
     def configure_position(self):
         cap = cv2.VideoCapture(0)
@@ -247,7 +268,6 @@ class MessengerApp(App):
 
 
     def add_message(self, text, side, color, last_word):
-        # create a message for the recycleview
         self.messages.append({
             'message_id': len(self.messages),
             'text': '...' if text == '-' else text,
@@ -258,30 +278,22 @@ class MessengerApp(App):
         })
 
     def update_message_size(self, message_id, texture_size, max_width):
-        # when the label is updated, we want to make sure the displayed size is
-        # proper
         if max_width == 0:
             return
 
-        one_line = dp(50)  # a bit of  hack, YMMV
+        one_line = dp(50)
 
-        # if the texture is too big, limit its size
         if texture_size[0] >= max_width * 2 / 3:
             self.messages[message_id] = {
                 **self.messages[message_id],
                 'text_size': (max_width * 2 / 3, None),
             }
-
-        # if it was limited, but is now too small to be limited, raise the limit
-        elif texture_size[0] < max_width * 2 / 3 and \
-                texture_size[1] > one_line:
+        elif texture_size[0] < max_width * 2 / 3 and texture_size[1] > one_line:
             self.messages[message_id] = {
                 **self.messages[message_id],
                 'text_size': (max_width * 2 / 3, None),
                 '_size': texture_size,
             }
-
-        # just set the size
         else:
             self.messages[message_id] = {
                 **self.messages[message_id],
@@ -293,9 +305,10 @@ class MessengerApp(App):
         if text != '':
             self.add_message(text, 'right', '#223344', last_word)
 
-    def response(self, text, *args):
+    def response(self, text):
         self.add_message(text, 'left', '#332211', '')
 
 
 if __name__ == '__main__':
     MessengerApp().run()
+    os._exit(1)

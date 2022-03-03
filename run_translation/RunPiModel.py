@@ -102,7 +102,7 @@ def rasp_translation():
                 hand_in_screen = True
         except:
             pass
-        # print(hand_count)
+        print(hand_count)
         if not hand_in_screen:
             hand_count = hand_count + 1
             if hand_count > 10:
