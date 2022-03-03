@@ -12,10 +12,13 @@ DATA_PATH = os.path.join('MP_Data')
 
 # Constants
 WEBCAM_ID = 1
-TARGET_WORD = 'tea'
+TARGET_WORD = 'large'
 VIDEOS_TO_COLLECT = 30
 folder_path = os.path.join(DATA_PATH, TARGET_WORD)
-len_data = len(os.listdir(folder_path))
+try:
+    len_data = len(os.listdir(folder_path))
+except:
+    len_data = 0
 print(len_data)
 STARTING_INDEX = len_data
 
