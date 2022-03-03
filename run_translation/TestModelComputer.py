@@ -72,7 +72,7 @@ def prob_viz(res, actions, input_frame, colors):
 
 # 1. New detection variables
 
-threshold = 0.90
+threshold = 0.97
 
 colors = [(245, 117, 16)]*(actions.size)
 
