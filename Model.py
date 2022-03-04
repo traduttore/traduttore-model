@@ -10,6 +10,13 @@ import numpy as np
 import os
 from matplotlib import pyplot as plt
 from gestures import actions
+from gestures import letters
+
+#Set this for different training models
+GESTURE_MODEL = True
+
+
+words = actions if GESTURE_MODEL else letters
 
 # Path for exported data, numpy arrays
 DATA_PATH = os.path.join('MP_Data')
@@ -17,10 +24,12 @@ DATA_PATH = os.path.join('MP_Data')
 # Videos are going to be 30 frames in lengh
 sequence_length = 20
 
-label_map = {label: num for num, label in enumerate(actions)}
+label_map = {label: num for num, label in enumerate(words)}
+
+words = actions if GESTURE_MODEL else letters
 
 sequences, labels = [], []
-for action in actions:
+for action in words:
     folder_path = os.path.join(DATA_PATH, action)
     len_data = len(os.listdir(folder_path))
     print(action)
@@ -46,7 +55,7 @@ model.add(LSTM(128, return_sequences=True, activation='relu'))
 model.add(LSTM(64, return_sequences=False, activation='relu'))
 model.add(Dense(64, activation='relu'))
 model.add(Dense(32, activation='relu'))
-model.add(Dense(actions.shape[0], activation='softmax'))
+model.add(Dense(words.shape[0], activation='softmax'))
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
