@@ -34,14 +34,14 @@ words = actions if GESTURE_MODEL else letters
 sequences, labels = [], []
 for action in words:
     folder_path = os.path.join(DATA_PATH, action)
-    len_data = len(os.listdir(folder_path))
+    file_names = os.listdir(folder_path)
+    len_data = len(file_names)
     print(action)
     print(len_data)
-    for sequence in range(len_data):
+    for file_name in file_names:
         window = []
         for frame_num in range(sequence_length):
-            res = np.load(os.path.join(DATA_PATH, action, str(
-                sequence), "{}.npy".format(frame_num)))
+            res = np.load(os.path.join(DATA_PATH, action, file_name, "{}.npy".format(frame_num)))
             window.append(res)
         sequences.append(window)
         labels.append(label_map[action])
