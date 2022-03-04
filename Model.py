@@ -16,6 +16,9 @@ from gestures import letters
 GESTURE_MODEL = True
 
 
+MODEL_NAME = 'action' if GESTURE_MODEL else 'letters'
+TFLITE_NAME = 'model.tflite' if GESTURE_MODEL else 'modelletters.tflite'
+
 words = actions if GESTURE_MODEL else letters
 
 # Path for exported data, numpy arrays
@@ -61,9 +64,9 @@ model.compile(optimizer='Adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
 model.fit(X_train, y_train, epochs=500)
 
-model.save('action')
-converter = tf.lite.TFLiteConverter.from_saved_model('action')
+model.save(MODEL_NAME)
+converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_NAME)
 tflite_model = converter.convert()
 
-with open('model.tflite', 'wb') as f:
+with open(TFLITE_NAME, 'wb') as f:
     f.write(tflite_model)
