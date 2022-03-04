@@ -7,6 +7,7 @@ import tflite_runtime.interpreter as tflite
 # import pyttsx3
 import time
 from gestures import actions
+from gestures import letters
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 
@@ -32,23 +33,26 @@ def extract_keypoints(results):
 
 threshold = 0.97
 
-colors = [(245, 117, 16)]*(actions.size)
 # hand_in_screen = True
 
 # model = load_model('action')
-interpreter = tflite.Interpreter(model_path='model.tflite')
-interpreter.allocate_tensors()
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 
-def model_predict(data):
+def model_predict(data, interpreter, input_details, output_details):
     inp = data.astype('float32')
     interpreter.set_tensor(input_details[0]['index'], inp)
     interpreter.invoke()
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def rasp_translation():
+def rasp_translation(alphabet=False):
+    words = letters if alphabet else actions
+    MODEL_PATH = 'modelletters.tflite' if alphabet else 'model.tflite'
+
+    interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
     sequence = []
     sentence = []
     start = None
@@ -70,11 +74,11 @@ def rasp_translation():
         sequence = sequence[-20:]
         
         if len(sequence) == 20:
-            res = model_predict(np.expand_dims(sequence, axis=0))[0]
+            res = model_predict(np.expand_dims(sequence, axis=0), interpreter, input_details, output_details)[0]
             
         # 3. Viz logic
             if res[np.argmax(res)] > threshold: 
-                if actions[np.argmax(res)] == '-':
+                if words[np.argmax(res)] == '-':
                     # print("its getting do nothing")
                     if start:
                         elapsed = timer() - start
@@ -86,7 +90,7 @@ def rasp_translation():
                 elif start:
                     start = None
                 else:
-                    sentence.append(actions[np.argmax(res)])
+                    sentence.append(words[np.argmax(res)])
                     output_sentence = (' '.join(sentence)).replace('-', ' ')
                     # print(output_sentence)
                     return output_sentence

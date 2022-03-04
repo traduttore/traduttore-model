@@ -77,12 +77,7 @@ threshold = 0.97
 
 colors = [(245, 117, 16)]
 
-interpreter = tflite.Interpreter(model_path='model.tflite')
-interpreter.allocate_tensors()
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
-
-def model_predict(data):
+def model_predict(data, interpreter, input_details, output_details):
     inp = data.astype('float32')
     interpreter.set_tensor(input_details[0]['index'], inp)
     interpreter.invoke()
@@ -91,6 +86,13 @@ def model_predict(data):
 
 def asl_translation(alphabet = False, CAM_ID=1):
     words = letters if alphabet else actions
+    MODEL_PATH = 'modelletters.tflite' if alphabet else 'model.tflite'
+
+    interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
     sequence = []
     sentence = []
     start = None
@@ -120,7 +122,7 @@ def asl_translation(alphabet = False, CAM_ID=1):
         sequence = sequence[-20:]
         
         if len(sequence) == 20:
-            res = model_predict(np.expand_dims(sequence, axis=0))[0]
+            res = model_predict(np.expand_dims(sequence, axis=0), interpreter, input_details, output_details)[0]
             
         # 3. Viz logic
             print(res[np.argmax(res)])
