@@ -42,6 +42,8 @@ root = Builder.load_string('''
                 on_press:
                     button_text = controller.text
                     controller.text = 'Start' if button_text == 'Clear' else 'Clear'
+                    camera_module.opacity = 1 if button_text == 'Clear' else 0
+                    camera.play = True if button_text == 'Clear' else False
                     pause_controller.text = 'Pause'
                     app.start() if button_text == 'Start' else app.reset()
                 size_hint: 0.1, 1
@@ -83,6 +85,18 @@ root = Builder.load_string('''
                             )
                         pos_hint: {'pos': (0, 0)}
                         on_release: app.scroll_bottom()
+        BoxLayout:
+            id: camera_module
+            orientation: 'vertical'
+            Label:
+                text: "Press start once positioned in frame"
+                size_hint_y: 0.2
+                font_size: '30sp'
+                color: 'green'
+            Camera:
+                id: camera
+                resolution: (640, 480)
+                play: True
         BoxLayout:
             size_hint: 1, 0.05
             pos_hint: {'bottom': 1, 'x': 0}
