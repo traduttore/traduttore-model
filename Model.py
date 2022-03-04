@@ -13,7 +13,7 @@ from gestures import actions
 from gestures import letters
 
 #Set this for different training models
-GESTURE_MODEL = True
+GESTURE_MODEL = False
 
 
 MODEL_NAME = 'action' if GESTURE_MODEL else 'letters'

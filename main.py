@@ -4,7 +4,7 @@ from run_translation.RunPiModel import rasp_translation
 # from run_translation.SpeechToText import stt
 
 if __name__ == "__main__":
-    sentence = asl_translation(CAM_ID=0)
+    sentence = asl_translation(alphabet=False, CAM_ID=0)
     # rasp_sentence = rasp_translation()
     # tts(sentence)
     # print(stt())
