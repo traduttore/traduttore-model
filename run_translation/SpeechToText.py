@@ -13,6 +13,5 @@ def stt():
     try:
         response = recognizer.recognize_google(audio)
     except:
-        response = "I didn't catch that"
+        response = "I_DIDNT_CATCH_THAT"
     return response
-print(stt())
