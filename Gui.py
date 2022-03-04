@@ -101,7 +101,6 @@ root = Builder.load_string('''
             size_hint: 1, 0.05
             pos_hint: {'bottom': 1, 'x': 0}
             Button:
-                text: str(len(app.messages))
                 size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
