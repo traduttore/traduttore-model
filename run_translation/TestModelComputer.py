@@ -6,6 +6,7 @@ from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
 import time
 from gestures import actions
+from gestures import letters
 from CvFpsCalc import CvFpsCalc
 
 mp_holistic = mp.solutions.holistic  # Holistic model
@@ -63,18 +64,18 @@ def extract_keypoints(results):
     return np.concatenate([pose, lh, rh])
 
 
-def prob_viz(res, actions, input_frame, colors):
+def prob_viz(res, words, input_frame, colors):
     output_frame = input_frame.copy()
     for num, prob in enumerate(res):
         cv2.rectangle(output_frame, (0,60+num*40), (int(prob*100), 90+num*40), colors[num], -1)
-        cv2.putText(output_frame, actions[num], (0, 85+num*40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        cv2.putText(output_frame, words[num], (0, 85+num*40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
     return output_frame
 
 # 1. New detection variables
 
 threshold = 0.97
 
-colors = [(245, 117, 16)]*(actions.size)
+colors = [(245, 117, 16)]
 
 interpreter = tflite.Interpreter(model_path='model.tflite')
 interpreter.allocate_tensors()
@@ -88,7 +89,8 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def asl_translation(CAM_ID=1):
+def asl_translation(alphabet = False, CAM_ID=1):
+    words = letters if alphabet else actions
     sequence = []
     sentence = []
     start = None
@@ -123,7 +125,7 @@ def asl_translation(CAM_ID=1):
         # 3. Viz logic
             print(res[np.argmax(res)])
             if res[np.argmax(res)] > threshold: 
-                if actions[np.argmax(res)] == '-':
+                if words[np.argmax(res)] == '-':
                     if start:
                         elapsed = timer() - start
                         if elapsed>10:
@@ -136,16 +138,16 @@ def asl_translation(CAM_ID=1):
                     start = None
                 else:
                     if len(sentence) > 0:
-                        if actions[np.argmax(res)] != sentence[-1]:
-                            sentence.append(actions[np.argmax(res)])
+                        if words[np.argmax(res)] != sentence[-1]:
+                            sentence.append(words[np.argmax(res)])
                     else:
-                        sentence.append(actions[np.argmax(res)])
+                        sentence.append(words[np.argmax(res)])
 
             if len(sentence) > 7: 
                 sentence = []
 
             # Viz probabilities
-            image = prob_viz(res, actions, image, colors)
+            image = prob_viz(res, words, image, colors*(words.size))
             
         cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
         output_sentence = (' '.join(sentence)).replace('-', ' ')
