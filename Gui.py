@@ -110,7 +110,7 @@ root = Builder.load_string('''
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.delete()
             ToggleButton:
-                text: 'Text'
+                text: 'Words'
                 group: 'model'
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
@@ -179,6 +179,7 @@ class MessengerApp(App):
     messages = ListProperty([])
     thread = Thread()
     stop_event = True
+    alphabet = False
 
     def build(self):
         # self.configure_position()
@@ -206,7 +207,7 @@ class MessengerApp(App):
                                     }
                         self.send_message(self.create_obj('-'), '')
                 else:
-                    word = rasp_translation()
+                    word = rasp_translation(alphabet=self.alphabet)
                     if not self.stop_event:
                         if word == "STOP_RECORDING":
                             self.response('-')
@@ -266,9 +267,11 @@ class MessengerApp(App):
 
     def modeloff(self):
         print('modeloff')
+        self.alphabet = False
 
     def modelon(self):
         print('modelon')
+        self.alphabet = True
 
     def configure_position(self):
         cap = cv2.VideoCapture(0)
