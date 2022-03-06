@@ -72,6 +72,13 @@ def prob_viz(res, words, input_frame, colors):
     return output_frame
 
 # 1. New detection variables
+words = actions
+MODEL_PATH = 'model.tflite'
+
+interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 threshold = 0.97
 
@@ -84,15 +91,7 @@ def model_predict(data, interpreter, input_details, output_details):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def asl_translation(alphabet = False, CAM_ID=1):
-    words = letters if alphabet else actions
-    MODEL_PATH = 'modelletters.tflite' if alphabet else 'model.tflite'
-
-    interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-    interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
+def asl_translation(CAM_ID=1):
     sequence = []
     sentence = []
     start = None

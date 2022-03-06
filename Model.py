@@ -10,16 +10,12 @@ import numpy as np
 import os
 from matplotlib import pyplot as plt
 from gestures import actions
-from gestures import letters
-
-#Set this for different training models
-GESTURE_MODEL = False
 
 
-MODEL_NAME = 'action' if GESTURE_MODEL else 'letters'
-TFLITE_NAME = 'model.tflite' if GESTURE_MODEL else 'modelletters.tflite'
+MODEL_NAME = 'action'
+TFLITE_NAME = 'model.tflite'
 
-words = actions if GESTURE_MODEL else letters
+words = actions
 
 # Path for exported data, numpy arrays
 DATA_PATH = os.path.join('MP_Data')
@@ -29,7 +25,6 @@ sequence_length = 20
 
 label_map = {label: num for num, label in enumerate(words)}
 
-words = actions if GESTURE_MODEL else letters
 
 sequences, labels = [], []
 for action in words:
