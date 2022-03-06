@@ -6,7 +6,6 @@ from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
 # import pyttsx3
 import time
-from gestures import actions
 from gestures import letters
 
 mp_holistic = mp.solutions.holistic  # Holistic model
@@ -21,17 +20,15 @@ def mediapipe_detection(image, model):
     return image, results
 
 def extract_keypoints(results):
-    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten(
-    ) if results.pose_landmarks else np.zeros(33*4)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten(
     ) if results.left_hand_landmarks else np.zeros(21*3)
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten(
     ) if results.right_hand_landmarks else np.zeros(21*3)
-    return np.concatenate([pose, lh, rh])
+    return np.concatenate([lh, rh])
 
 # 1. New detection variables
-words = actions
-MODEL_PATH = 'model.tflite'
+words = letters
+MODEL_PATH = 'modelletters.tflite'
 
 interpreter = tflite.Interpreter(model_path=MODEL_PATH)
 interpreter.allocate_tensors()
@@ -51,7 +48,7 @@ def model_predict(data, interpreter, input_details, output_details):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def rasp_translation():
+def rasp_translation_letters():
     sequence = []
     sentence = []
     start = None

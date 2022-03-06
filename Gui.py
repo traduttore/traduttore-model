@@ -10,6 +10,7 @@ from threading import Thread, Event
 
 from run_translation.SpeechToText import stt
 from run_translation.RunPiModel import rasp_translation
+from run_translation.RunPiModelLetters import rasp_translation_letters
 from run_translation.TextToSpeech import tts
 
 import cv2
@@ -206,7 +207,10 @@ class MessengerApp(App):
                                     }
                         self.send_message(self.create_obj('-'), '')
                 else:
-                    word = rasp_translation(alphabet=self.alphabet)
+                    if self.alphabet == False:
+                        word = rasp_translation()
+                    else:
+                        word = rasp_translation_letters()
                     if not self.stop_event:
                         if word == "STOP_RECORDING":
                             self.response('-')

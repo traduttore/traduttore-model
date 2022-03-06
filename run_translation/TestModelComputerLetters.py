@@ -88,7 +88,7 @@ def model_predict(data, interpreter, input_details, output_details):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def asl_translation(CAM_ID=1):
+def asl_translation_letters(CAM_ID=1):
     sequence = []
     sentence = []
     start = None
