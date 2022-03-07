@@ -11,9 +11,9 @@ mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
 DATA_PATH = os.path.join('MP_Data')
 
 # Constants
-WEBCAM_ID = 1
-TARGET_WORD = 'water'
-VIDEOS_TO_COLLECT = 60
+WEBCAM_ID = 0
+TARGET_WORD = 'get'
+VIDEOS_TO_COLLECT = 30
 folder_path = os.path.join(DATA_PATH, TARGET_WORD)
 try:
     len_data = len(os.listdir(folder_path))
