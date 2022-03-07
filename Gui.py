@@ -211,6 +211,8 @@ class MessengerApp(App):
                         word = rasp_translation()
                     else:
                         word = rasp_translation_letters()
+                        if word == "space":
+                            word = ' '
                     if not self.stop_event:
                         if word == "STOP_RECORDING":
                             self.response('-')
@@ -220,7 +222,7 @@ class MessengerApp(App):
                                 if message['last_word'] != word: 
                                     self.messages[-1] = {
                                         **self.messages[-1],
-                                        'text': (message['text'] if message['text'] != '...' else '') + ' ' + word,
+                                        'text': (message['text'] if message['text'] != '...' else '') + ('' if self.alphabet else ' ') + word,
                                         'last_word': word,
                                     }
                             else:
