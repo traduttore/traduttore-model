@@ -57,7 +57,7 @@ model.add(Dense(words.shape[0], activation='softmax'))
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
-model.fit(X_train, y_train, epochs=500)
+model.fit(X_train, y_train, epochs=300)
 
 model.save(MODEL_NAME)
 converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_NAME)
