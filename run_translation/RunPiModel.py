@@ -52,6 +52,7 @@ def model_predict(data, interpreter, input_details, output_details):
     return output_data
 
 def rasp_translation():
+    hand_in_screen = True
     sequence = []
     sentence = []
     start = None
