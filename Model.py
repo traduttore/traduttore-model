@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from gestures import actions
 
 
-MODEL_NAME = 'actionfast'
+MODEL_NAME = 'action'
 TFLITE_NAME = 'model.tflite'
 
 words = actions
