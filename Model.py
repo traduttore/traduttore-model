@@ -57,11 +57,11 @@ model.add(Dense(words.shape[0], activation='softmax'))
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
-model.fit(X_train, y_train, epochs=100)
+model.fit(X_train, y_train, epochs=300)
 
-model.save(MODEL_NAME, save_format='h5')
-# converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_NAME)
-# tflite_model = converter.convert()
+model.save(MODEL_NAME)
+converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_NAME)
+tflite_model = converter.convert()
 
-# with open(TFLITE_NAME, 'wb') as f:
-#     f.write(tflite_model)
+with open(TFLITE_NAME, 'wb') as f:
+    f.write(tflite_model)
