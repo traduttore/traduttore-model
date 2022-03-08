@@ -4,10 +4,10 @@ import mediapipe as mp
 # from tensorflow.keras.models import load_model
 from timeit import default_timer as timer
 import tflite_runtime.interpreter as tflite
+# import pyttsx3
 import time
 from gestures import actions
 from gestures import letters
-from CvFpsCalc import CvFpsCalc
 
 mp_holistic = mp.solutions.holistic  # Holistic model
 mp_drawing = mp.solutions.drawing_utils  # Drawing utilities
@@ -67,8 +67,10 @@ def extract_keypoints(results):
 def prob_viz(res, words, input_frame, colors):
     output_frame = input_frame.copy()
     for num, prob in enumerate(res):
-        cv2.rectangle(output_frame, (0,60+num*40), (int(prob*100), 90+num*40), colors[num], -1)
-        cv2.putText(output_frame, words[num], (0, 85+num*40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+        cv2.rectangle(output_frame, (0, 60+num*40),
+                      (int(prob*100), 90+num*40), colors[num], -1)
+        cv2.putText(output_frame, words[num], (0, 85+num*40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
     return output_frame
 
 # 1. New detection variables
@@ -82,6 +84,9 @@ output_details = interpreter.get_output_details()
 
 threshold = 0.97
 
+# hand_in_screen = True
+
+# model = load_model('action')
 colors = [(245, 117, 16)]
 
 def model_predict(data):
@@ -91,20 +96,18 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def asl_translation(CAM_ID=1):
+def rasp_translation():
+    hand_in_screen = True
     sequence = []
     sentence = []
     start = None
-    cap = cv2.VideoCapture(CAM_ID)
+    hand_count = 0
+    cap = cv2.VideoCapture(0)
     # cap = cv2.VideoCapture('http://172.20.10.6:8080/?action=stream')
-    cvFpsCalc = CvFpsCalc(buffer_len=10)
-    # Set mediapipe model 
     # holistic_def = mp_holistic.Holistic(
     #     min_detection_confidence=0.5, min_tracking_confidence=0.5)
     with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         while cap.isOpened():
-            display_fps = cvFpsCalc.get()
-            print(display_fps)
             # Read feed
             ret, frame = cap.read()
 
@@ -113,12 +116,10 @@ def asl_translation(CAM_ID=1):
             
             # Draw landmarks
             draw_styled_landmarks(image, results)
-            
+
             # 2. Prediction logic
             keypoints = extract_keypoints(results)
 
-            # sequence.insert(0,keypoints)
-            # sequence = sequence[:30]
             sequence.append(keypoints)
             sequence = sequence[-20:]
             
@@ -126,35 +127,26 @@ def asl_translation(CAM_ID=1):
                 res = model_predict(np.expand_dims(sequence, axis=0))[0]
                 
             # 3. Viz logic
-                print(res[np.argmax(res)])
                 if res[np.argmax(res)] > threshold: 
                     if words[np.argmax(res)] == '-':
+                        # print("its getting do nothing")
                         if start:
                             elapsed = timer() - start
-                            if elapsed>10:
-                                cap.release()
-                                cv2.destroyAllWindows()
-                                return (' '.join(sentence)).replace('-', ' ')
+                            # print(elapsed)
+                            # if elapsed>2:
+                            #     return "STOP_RECORDING"
                         else:
                             start = timer()
                     elif start:
                         start = None
                     else:
-                        if len(sentence) > 0:
-                            if words[np.argmax(res)] != sentence[-1]:
-                                sentence.append(words[np.argmax(res)])
-                        else:
-                            sentence.append(words[np.argmax(res)])
-
-                if len(sentence) > 7: 
-                    sentence = []
-
-                # Viz probabilities
+                        sentence.append(words[np.argmax(res)])
+                        output_sentence = (' '.join(sentence)).replace('-', ' ')
+                        print(output_sentence)
+                        return output_sentence
+                        # Viz probabilities
                 image = prob_viz(res, words, image, colors*(words.size))
-                
-            cv2.rectangle(image, (0,0), (640, 40), (245, 117, 16), -1)
-            output_sentence = (' '.join(sentence)).replace('-', ' ')
-            print(output_sentence)
+            cv2.rectangle(image, (0, 0), (640, 40), (245, 117, 16), -1)
             try:
                 y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
                 y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
@@ -162,20 +154,25 @@ def asl_translation(CAM_ID=1):
                     and not (0.15 < y_coordinate_left_hand < 0.9) \
                     and not (0.15 < y_coordinate_right_hand < 0.9):
                     output_sentence = "Please make sure the hand is within frame."
+                    hand_in_screen = False
+                else:
+                    hand_in_screen = True
             except:
                 pass
-            cv2.putText(image, output_sentence, (3,30), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             # Show to screen
             cv2.imshow('OpenCV Feed', image)
-
-            # Break gracefully
+            print(hand_count)
+            if not hand_in_screen:
+                hand_count = hand_count + 1
+                if hand_count > 10:
+                    return "STOP_RECORDING"
+            else:
+                hand_count = 0
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
         cap.release()
         cv2.destroyAllWindows()
 
-
 if __name__ == '__main__':
-    sentence = asl_translation()
-    print(sentence)
+    sentence = rasp_translation()
+    # print(sentence)
