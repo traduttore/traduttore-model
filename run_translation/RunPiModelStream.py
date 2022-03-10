@@ -101,6 +101,7 @@ def rasp_translation(sentence):
     sequence = []
     start = None
     hand_count = 0
+    start_timer = timer()
     cap = cv2.VideoCapture(1)
     # cap = cv2.VideoCapture('http://172.20.10.6:8080/?action=stream')
     # holistic_def = mp_holistic.Holistic(
@@ -122,7 +123,7 @@ def rasp_translation(sentence):
             sequence.append(keypoints)
             sequence = sequence[-20:]
             
-            if len(sequence) == 20:
+            if len(sequence) == 20 and timer()-start_timer>2:
                 res = model_predict(np.expand_dims(sequence, axis=0))[0]
                 
             # 3. Viz logic
