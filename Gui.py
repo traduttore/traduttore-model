@@ -9,7 +9,7 @@ from timeit import default_timer as timer
 from threading import Thread, Event
 
 from run_translation.SpeechToText import stt
-from run_translation.RunPiModel import rasp_translation
+from run_translation.RunPiModelStream import rasp_translation
 from run_translation.RunPiModelLetters import rasp_translation_letters
 from run_translation.TextToSpeech import tts
 
@@ -192,6 +192,7 @@ class MessengerApp(App):
         return a
 
     def word_builder(self):
+        sentence = []
         while(1):
             if not self.stop_event:
                 if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
@@ -208,25 +209,23 @@ class MessengerApp(App):
                         self.send_message(self.create_obj('-'), '')
                 else:
                     if self.alphabet == False:
-                        word = rasp_translation()
+                        rasp_translation(sentence)
+                        word = ' '.join(sentence[:-1])
                     else:
-                        word = rasp_translation_letters()
+                        word = rasp_translation_letters(sentence)
                         if word == "space":
                             word = ' '
-                    if not self.stop_event:
-                        if word == "STOP_RECORDING":
+                    if not self.stop_event and sentence:
+                        if sentence[-1] == "STOP_RECORDING":
+                            sentence = []
+                            message = self.messages[-1]
+                            if message['last_word'] != word: 
+                                self.messages[-1] = {
+                                    **self.messages[-1],
+                                    'text': (message['text'] if message['text'] != '...' else '') + ('' if self.alphabet else ' ') + word,
+                                    'last_word': word,
+                                }
                             self.response('-')
-                        else:
-                            if len(self.messages):
-                                message = self.messages[-1]
-                                if message['last_word'] != word: 
-                                    self.messages[-1] = {
-                                        **self.messages[-1],
-                                        'text': (message['text'] if message['text'] != '...' else '') + ('' if self.alphabet else ' ') + word,
-                                        'last_word': word,
-                                    }
-                            else:
-                                self.send_message(self.create_obj(word + ' '), word)
 
     def delete(self):
         print('delete')

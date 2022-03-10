@@ -7,7 +7,7 @@ from run_translation.TestModelComputerLetters import asl_translation_letters
 
 if __name__ == "__main__":
     # sentence = rasp_translation()
-    # sentence = asl_translation_letters(CAM_ID=1)
-    rasp_sentence = rasp_translation([])
+    sentence = asl_translation(CAM_ID=1)
+    # rasp_sentence = rasp_translation([])
     # tts(sentence)
     # print(stt())

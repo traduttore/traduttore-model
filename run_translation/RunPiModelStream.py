@@ -101,7 +101,7 @@ def rasp_translation(sentence):
     sequence = []
     start = None
     hand_count = 0
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     # cap = cv2.VideoCapture('http://172.20.10.6:8080/?action=stream')
     # holistic_def = mp_holistic.Holistic(
     #     min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -150,6 +150,7 @@ def rasp_translation(sentence):
             try:
                 y_coordinate_left_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].y
                 y_coordinate_right_hand = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].y
+                print(y_coordinate_left_hand, y_coordinate_right_hand)
                 if (y_coordinate_right_hand or y_coordinate_left_hand) \
                     and not (0.15 < y_coordinate_left_hand < 0.9) \
                     and not (0.15 < y_coordinate_right_hand < 0.9):
@@ -159,12 +160,15 @@ def rasp_translation(sentence):
                     hand_in_screen = True
             except:
                 pass
+            cv2.putText(image, ' '.join(sentence), (3,30), 
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             # Show to screen
             cv2.imshow('OpenCV Feed', image)
             print(hand_count)
             if not hand_in_screen:
                 hand_count = hand_count + 1
                 if hand_count > 10:
+                    sentence.append("STOP_RECORDING")
                     return "STOP_RECORDING"
             else:
                 hand_count = 0
