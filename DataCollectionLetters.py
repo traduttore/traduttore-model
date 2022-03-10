@@ -12,7 +12,7 @@ DATA_PATH = os.path.join('LETTER_Data')
 
 # Constants
 WEBCAM_ID = 0
-TARGET_WORD = 'y'
+TARGET_WORD = 'space'
 VIDEOS_TO_COLLECT = 30
 folder_path = os.path.join(DATA_PATH, TARGET_WORD)
 try:
