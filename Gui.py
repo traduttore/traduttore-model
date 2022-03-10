@@ -27,7 +27,7 @@ root = Builder.load_string('''
             Button:
                 font_size: '26sp'
                 text: 'Traduttore'
-                size_hint: 0.8, 1
+                size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
                 font_size: '26sp'
@@ -37,7 +37,7 @@ root = Builder.load_string('''
                     button_text = pause_controller.text
                     pause_controller.text = 'Resume' if button_text == 'Pause' and controller.text == 'Clear' else 'Pause'
                     app.pause() if button_text == 'Pause' else app.resume()
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
             Button:
                 font_size: '26sp'
@@ -50,7 +50,7 @@ root = Builder.load_string('''
                     # camera.play = True if button_text == 'Clear' else False
                     pause_controller.text = 'Pause'
                     app.start() if button_text == 'Start' else app.reset()
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
         FloatLayout:
             size_hint: 1, 0.8 
@@ -107,23 +107,17 @@ root = Builder.load_string('''
             Button:
                 size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
-            Button:
-                text: 'Delete'
-                size_hint: 0.1, 1
-                pos_hint: {'top': 1, 'x': 1}
-                on_press: app.delete()
-                font_size: '26sp'
             ToggleButton:
                 text: 'Words'
                 group: 'model'
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modeloff()
                 font_size: '26sp'
             ToggleButton:
                 text: 'Letters'
                 group: 'model'
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modelon()
                 font_size: '26sp'
@@ -233,27 +227,6 @@ class MessengerApp(App):
                                     'last_word': word,
                                 }
                             self.response('-')
-
-    def delete(self):
-        print('delete')
-        if len(self.messages) and self.messages[-1]['side'] == 'right' and self.messages[-1]['last_word'] != '':
-            message = self.messages[-1]
-            sentence_arr = self.messages[-1]['text'].split(' ')
-            last_word = sentence_arr[-1]
-            text = ' '.join(sentence_arr[:-1]) if message['text'] != '...' else '...'
-            if text == '':
-                self.messages[-1] = {
-                    **self.messages[-1],
-                    'text': '...',
-                    'last_word': '...',
-                }
-            else:
-                self.messages[-1] = {
-                    **self.messages[-1],
-                    'text': text,
-                    'last_word': last_word,
-                }
-
 
     def reset(self):
         print('reset')
