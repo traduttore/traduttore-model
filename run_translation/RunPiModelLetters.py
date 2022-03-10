@@ -96,8 +96,12 @@ def rasp_translation_letters(sentence):
     sequence = []
     start = None
     hand_count = 0
+<<<<<<< Updated upstream
     start_timer = timer()
     cap = cv2.VideoCapture(0)
+=======
+    cap = cv2.VideoCapture(1)
+>>>>>>> Stashed changes
     # cap = cv2.VideoCapture('http://172.20.10.6:8080/?action=stream')
     # holistic_def = mp_holistic.Holistic(
     #     min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -136,9 +140,11 @@ def rasp_translation_letters(sentence):
                         start = None
                     else:
                         if not sentence:
-                            sentence.append(words[np.argmax(res)])
+                            sentence.append(' ' if words[np.argmax(res)] == 'space' else words[np.argmax(res)])
+                        elif words[np.argmax(res)] == 'space' and sentence[-1] == ' ':
+                            pass
                         elif sentence[-1] != words[np.argmax(res)]:
-                            sentence.append(words[np.argmax(res)])
+                            sentence.append(' ' if words[np.argmax(res)] == 'space' else words[np.argmax(res)])
                         print(sentence)
                         # Viz probabilities
                 image = prob_viz(res, words, image, colors*(words.size))

@@ -22,13 +22,15 @@ root = Builder.load_string('''
 <GUI>:
     FloatLayout:
         BoxLayout:
-            size_hint: 1, 0.05
+            size_hint: 1, 0.1
             pos_hint: {'top': 1, 'x': 0}
             Button:
+                font_size: '26sp'
                 text: 'Traduttore'
                 size_hint: 0.8, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
+                font_size: '26sp'
                 id: pause_controller
                 text: 'Pause'
                 on_press:
@@ -38,6 +40,7 @@ root = Builder.load_string('''
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
             Button:
+                font_size: '26sp'
                 id: controller
                 text: 'Start'
                 on_press:
@@ -50,7 +53,7 @@ root = Builder.load_string('''
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
         FloatLayout:
-            size_hint: 1, 0.9 
+            size_hint: 1, 0.8 
             BoxLayout:
                 pos_hint: {'bottom': 1, 'x': 0}
                 orientation: 'vertical'
@@ -90,7 +93,7 @@ root = Builder.load_string('''
             id: camera_module
             orientation: 'vertical'
             Label:
-                text: "Press start once positioned in frame"
+                text: "Press start to begin"
                 size_hint_y: 0.2
                 font_size: '30sp'
                 color: 'green'
@@ -99,7 +102,7 @@ root = Builder.load_string('''
             #     resolution: (640, 480)
             #     play: True
         BoxLayout:
-            size_hint: 1, 0.05
+            size_hint: 1, 0.1
             pos_hint: {'bottom': 1, 'x': 0}
             Button:
                 size_hint: 0.7, 1
@@ -109,18 +112,21 @@ root = Builder.load_string('''
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.delete()
+                font_size: '26sp'
             ToggleButton:
                 text: 'Words'
                 group: 'model'
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modeloff()
+                font_size: '26sp'
             ToggleButton:
                 text: 'Letters'
                 group: 'model'
                 size_hint: 0.1, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modelon()
+                font_size: '26sp'
 
 <Message@FloatLayout>:
     message_id: -1
@@ -132,9 +138,11 @@ root = Builder.load_string('''
     size: self._size
     text_size: None, None
     opacity: min(1, self._size[0])
+    font_size: '25sp'
 
     Label:
         text: root.text
+        font_size: '25sp'
         padding: 10, 10
         size_hint: None, 1
         size: self.texture_size
@@ -212,9 +220,8 @@ class MessengerApp(App):
                         rasp_translation(sentence)
                         word = ' '.join(sentence[:-1])
                     else:
-                        word = rasp_translation_letters(sentence)
-                        if word == "space":
-                            word = ' '
+                        rasp_translation_letters(sentence)
+                        word = ''.join(sentence[:-1])
                     if not self.stop_event and sentence:
                         if sentence[-1] == "STOP_RECORDING":
                             sentence = []
