@@ -123,7 +123,7 @@ def rasp_translation(sentence):
             sequence.append(keypoints)
             sequence = sequence[-20:]
             
-            if len(sequence) == 20 and timer()-start_timer>2:
+            if len(sequence) == 20 and timer()-start_timer>4:
                 res = model_predict(np.expand_dims(sequence, axis=0))[0]
                 
             # 3. Viz logic
