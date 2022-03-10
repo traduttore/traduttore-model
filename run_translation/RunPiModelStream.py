@@ -96,10 +96,9 @@ def model_predict(data):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     return output_data
 
-def rasp_translation():
+def rasp_translation(sentence):
     hand_in_screen = True
     sequence = []
-    sentence = []
     start = None
     hand_count = 0
     cap = cv2.VideoCapture(0)
@@ -140,10 +139,11 @@ def rasp_translation():
                     elif start:
                         start = None
                     else:
-                        sentence.append(words[np.argmax(res)])
-                        output_sentence = (' '.join(sentence)).replace('-', ' ')
-                        print(output_sentence)
-                        return output_sentence
+                        if not sentence:
+                            sentence.append(words[np.argmax(res)])
+                        elif sentence[-1] != words[np.argmax(res)]:
+                            sentence.append(words[np.argmax(res)])
+                        print(sentence)
                         # Viz probabilities
                 image = prob_viz(res, words, image, colors*(words.size))
             cv2.rectangle(image, (0, 0), (640, 40), (245, 117, 16), -1)
