@@ -59,12 +59,11 @@ def extract_keypoints(results):
 def prob_viz(res, words, input_frame, colors):
     output_frame = input_frame.copy()
     for num, prob in enumerate(res):
-        cv2.rectangle(output_frame, (0, 60+num*40),
-                      (int(prob*100), 90+num*40), colors[num], -1)
-        cv2.putText(output_frame, words[num], (0, 85+num*40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.rectangle(output_frame, (0, 60+num*30),
+                      (int(prob*100), 90+num*30), colors[num], -1)
+        cv2.putText(output_frame, words[num], (0, 85+num*30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv2.LINE_AA)
     return output_frame
-
 
 # 1. New detection variables
 words = letters
@@ -143,7 +142,7 @@ def rasp_translation_letters(sentence):
                         print(sentence)
                         # Viz probabilities
                 image = prob_viz(res, words, image, colors*(words.size))
-            cv2.rectangle(image, (0, 0), (640, 40), (245, 117, 16), -1)
+            cv2.rectangle(image, (0, 0), (4000, 40), (245, 117, 16), -1)
             try:
                 y_coordinate_left_hand = results.pose_landmarks.landmark[
                     mp_holistic.PoseLandmark.LEFT_INDEX].y
