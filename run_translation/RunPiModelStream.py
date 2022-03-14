@@ -75,7 +75,7 @@ def prob_viz(res, words, input_frame, colors):
 
 # 1. New detection variables
 words = actions
-MODEL_PATH = 'model.tflite'
+MODEL_PATH = 'model2.tflite'
 
 interpreter = tflite.Interpreter(model_path=MODEL_PATH)
 interpreter.allocate_tensors()

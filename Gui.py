@@ -8,7 +8,7 @@ from kivy.metrics import dp
 from timeit import default_timer as timer
 from threading import Thread, Event
 
-# from run_translation.SpeechToText import stt
+from run_translation.SpeechToText import stt
 from run_translation.RunPiModelStream import rasp_translation
 from run_translation.RunPiModelLetters import rasp_translation_letters
 from run_translation.TextToSpeech import tts
@@ -200,7 +200,7 @@ class MessengerApp(App):
                 if len(self.messages) and self.messages[-1]['side'] == 'left' and self.messages[-1]['text'] == '...':
                     if not self.messages[-2]['text'] in ['...', '', ' ']:
                         tts(self.messages[-2]['text'])
-                    spoken = "placeholder"
+                    spoken = stt()
                     if not self.stop_event:
                         if spoken != "I_DIDNT_CATCH_THAT":
                             self.messages[-1] = {

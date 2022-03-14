@@ -31,7 +31,7 @@ def extract_keypoints(results):
 
 # 1. New detection variables
 words = actions
-MODEL_PATH = 'model.tflite'
+MODEL_PATH = 'model2.tflite'
 
 interpreter = tflite.Interpreter(model_path=MODEL_PATH)
 interpreter.allocate_tensors()
@@ -57,7 +57,7 @@ def rasp_translation():
     sentence = []
     start = None
     hand_count = 0
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     holistic_def = mp_holistic.Holistic(
         min_detection_confidence=0.5, min_tracking_confidence=0.5)
     while cap.isOpened():
