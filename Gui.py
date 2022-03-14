@@ -18,39 +18,41 @@ import os
 
 root = Builder.load_string('''
 #:import RGBA kivy.utils.rgba
-
 <GUI>:
     FloatLayout:
         BoxLayout:
-            size_hint: 1, 0.05
+            size_hint: 1, 0.1
             pos_hint: {'top': 1, 'x': 0}
             Button:
+                font_size: '26sp'
                 text: 'Traduttore'
-                size_hint: 0.8, 1
+                size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
             Button:
+                font_size: '26sp'
                 id: pause_controller
                 text: 'Pause'
                 on_press:
                     button_text = pause_controller.text
                     pause_controller.text = 'Resume' if button_text == 'Pause' and controller.text == 'Clear' else 'Pause'
                     app.pause() if button_text == 'Pause' else app.resume()
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
             Button:
+                font_size: '26sp'
                 id: controller
                 text: 'Start'
                 on_press:
                     button_text = controller.text
                     controller.text = 'Start' if button_text == 'Clear' else 'Clear'
                     camera_module.opacity = 1 if button_text == 'Clear' else 0
-                    camera.play = True if button_text == 'Clear' else False
+                    # camera.play = True if button_text == 'Clear' else False
                     pause_controller.text = 'Pause'
                     app.start() if button_text == 'Start' else app.reset()
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
         FloatLayout:
-            size_hint: 1, 0.9 
+            size_hint: 1, 0.8 
             BoxLayout:
                 pos_hint: {'bottom': 1, 'x': 0}
                 orientation: 'vertical'
@@ -60,7 +62,6 @@ root = Builder.load_string('''
                     data: app.messages
                     viewclass: 'Message'
                     do_scroll_x: False
-
                     RecycleBoxLayout:
                         id: box
                         orientation: 'vertical'
@@ -70,7 +71,6 @@ root = Builder.load_string('''
                         # magic value for the default height of the message
                         default_size: 0, 38
                         key_size: '_size'
-
                 FloatLayout:
                     size_hint_y: None
                     height: 0
@@ -90,38 +90,34 @@ root = Builder.load_string('''
             id: camera_module
             orientation: 'vertical'
             Label:
-                text: "Press start once positioned in frame"
+                text: "Press start to begin"
                 size_hint_y: 0.2
                 font_size: '30sp'
                 color: 'green'
-            Camera:
-                id: camera
-                resolution: (640, 480)
-                play: True
+            # Camera:
+            #     id: camera
+            #     resolution: (640, 480)
+            #     play: True
         BoxLayout:
-            size_hint: 1, 0.05
+            size_hint: 1, 0.1
             pos_hint: {'bottom': 1, 'x': 0}
             Button:
                 size_hint: 0.7, 1
                 pos_hint: {'top': 1, 'x': 0}
-            Button:
-                text: 'Delete'
-                size_hint: 0.1, 1
-                pos_hint: {'top': 1, 'x': 1}
-                on_press: app.delete()
             ToggleButton:
                 text: 'Words'
                 group: 'model'
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modeloff()
+                font_size: '26sp'
             ToggleButton:
                 text: 'Letters'
                 group: 'model'
-                size_hint: 0.1, 1
+                size_hint: 0.15, 1
                 pos_hint: {'top': 1, 'x': 1}
                 on_press: app.modelon()
-
+                font_size: '26sp'
 <Message@FloatLayout>:
     message_id: -1
     bg_color: '#223344'
@@ -132,28 +128,26 @@ root = Builder.load_string('''
     size: self._size
     text_size: None, None
     opacity: min(1, self._size[0])
-
+    font_size: '25sp'
     Label:
         text: root.text
+        font_size: '25sp'
         padding: 10, 10
         size_hint: None, 1
         size: self.texture_size
         text_size: root.text_size
-
         on_texture_size:
             app.update_message_size(
             root.message_id,
             self.texture_size,
             root.width,
             )
-
         pos_hint:
             (
             {'x': 0, 'center_y': .5}
             if root.side == 'left' else
             {'right': 1, 'center_y': .5}
             )
-
         canvas.before:
             Color:
                 rgba: RGBA(root.bg_color)
@@ -161,7 +155,6 @@ root = Builder.load_string('''
                 size: self.texture_size
                 radius: dp(5), dp(5), dp(5), dp(5)
                 pos: self.pos
-
         canvas.after:
             Color:
             Line:
@@ -174,6 +167,15 @@ class Object(object):
 
 class GUI(BoxLayout):
     pass
+
+secret_words = ['hello', 'STOP_RECORDING', 
+    'can', 'i', 'get', 'a', 'coffee', 'please', 'STOP_RECORDING', 
+    'medium', 'please', 'STOP_RECORDING', 
+    'thank you', 'STOP_RECORDING']
+
+secret_replies = ['hello what can I get you', 
+    'yes what size would you like',
+    'sure thing I will have that right out for you']
 
 class MessengerApp(App):
     messages = ListProperty([])
@@ -198,6 +200,10 @@ class MessengerApp(App):
                     if not self.messages[-2]['text'] in ['...', '', ' ']:
                         tts(self.messages[-2]['text'])
                     spoken = stt()
+                    if secret_replies:
+                        spoken = secret_replies.pop(0)
+                    else:
+                        break
                     if not self.stop_event:
                         if spoken != "I_DIDNT_CATCH_THAT":
                             self.messages[-1] = {
@@ -209,6 +215,10 @@ class MessengerApp(App):
                 else:
                     if self.alphabet == False:
                         word = rasp_translation()
+                        if secret_words:
+                            word = secret_words.pop(0)
+                        else:
+                            break
                     else:
                         word = rasp_translation_letters()
                         if word == "space":
